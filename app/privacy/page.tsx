@@ -1,6 +1,9 @@
 export const metadata = {
   title: 'Privacy Policy | RETA LAB UK',
-  robots: 'noindex, nofollow' // as required by PDF spec
+  robots: 'noindex, nofollow',
+  alternates: {
+    canonical: '/privacy',
+  },
 };
 
 export default function PrivacyPage() {

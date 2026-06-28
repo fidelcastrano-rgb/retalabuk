@@ -1,7 +1,16 @@
 import React from "react";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { productCOAs } from "./coaData";
+
+export const metadata: Metadata = {
+  title: 'Certificates of Analysis (COAs) | RETA LAB UK',
+  description: 'View our independent 3rd-party HPLC testing results verifying >99% purity for our research peptides.',
+  alternates: {
+    canonical: '/coa',
+  },
+};
 
 export default function COAPage() {
   return (
