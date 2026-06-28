@@ -155,7 +155,7 @@ export default function Homepage() {
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center opacity-10 mix-blend-multiply">
-                      <Image src="/logo.png" alt="Watermark" fill className="object-contain p-12" />
+                      <Image src="/logo.png" alt="Watermark" fill className="object-contain p-12" referrerPolicy="no-referrer" />
                     </div>
                   </Link>
                   <div className="p-6 flex flex-col flex-1">

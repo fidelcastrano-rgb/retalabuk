@@ -11,7 +11,7 @@ export function Footer() {
           
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <Image src="/logo.png" alt="Reta Lab UK Logo" width={40} height={40} className="object-contain" priority />
+              <Image src="/logo.png" alt="Reta Lab UK Logo" width={40} height={40} className="object-contain" priority referrerPolicy="no-referrer" />
               <h3 className="font-heading font-bold text-xl">RETA LAB UK</h3>
             </div>
             <p className="text-[#CBD5E1] text-sm mb-4">
