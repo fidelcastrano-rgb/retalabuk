@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { products, faqs, blogPosts } from "@/lib/data";
 import { SeoContent } from "@/components/SeoContent";
+import { GridOrderActions } from "@/components/GridOrderActions";
 
 export const metadata: Metadata = {
   title: 'RETA LAB UK | UK\'s Most Trusted Research Peptide Wholesaler',
@@ -144,9 +145,6 @@ export default function Homepage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.slice(0, 12).map((product) => {
-              const startingPrice = product.variants && product.variants.length > 0 
-                ? Math.min(...product.variants.map(v => v.price)) 
-                : null;
               return (
                 <div key={product.slug} className="bg-white rounded border border-[#CBD5E1] shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
                   <Link href={`/products/${product.slug}`} className="block relative aspect-square bg-[#EEF2F7]">
@@ -175,11 +173,6 @@ export default function Homepage() {
                     </div>
                     
                     <div className="flex justify-between items-center mb-3">
-                      {startingPrice !== null && (
-                        <span className="text-lg font-extrabold text-[#10B981]">
-                          {product.variants.length > 1 ? `From £${startingPrice}` : `£${startingPrice}`}
-                        </span>
-                      )}
                       <span className="text-xs font-semibold bg-[#F1F5F9] text-[#475569] px-2 py-0.5 rounded border border-[#E2E8F0]">
                         {product.tag}
                       </span>
@@ -189,13 +182,10 @@ export default function Homepage() {
                       {product.description}
                     </p>
                     
-                    <div className="mt-auto flex justify-center">
-                      <Link 
-                        href={`/products/${product.slug}`}
-                        className="w-full text-center py-2.5 bg-[#2563EB] text-white font-bold rounded hover:bg-[#1D4ED8] transition-colors"
-                      >
-                        View Details & Order
-                      </Link>
+                    <div className="mt-auto flex justify-center w-full">
+                      <div className="w-full">
+                        <GridOrderActions product={product} />
+                      </div>
                     </div>
                   </div>
                 </div>

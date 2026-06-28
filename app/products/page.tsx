@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { products } from '@/lib/data';
+import { GridOrderActions } from '@/components/GridOrderActions';
 
 export const metadata: Metadata = {
   title: 'Research Peptides Catalogue | RETA LAB UK',
@@ -81,19 +82,14 @@ export default function ProductsPage() {
                     {product.description}
                   </p>
                   
-                  <div className="bg-[#F8FAFC] border border-[#CBD5E1] rounded p-3 mb-4 flex justify-between items-center">
+                  <div className="bg-[#F8FAFC] border border-[#CBD5E1] rounded p-3 mb-2 flex justify-between items-center">
                     <span className="text-xs font-bold text-[#475569]">Purity Assured</span>
                     <Link href={product.coaUrl} className="text-[#2563EB] text-xs font-bold hover:underline flex items-center gap-1">
                       View COA
                     </Link>
                   </div>
 
-                  <Link 
-                    href={`/products/${product.slug}`}
-                    className="w-full text-center py-3 bg-[#FF6B1A] text-white font-bold rounded hover:bg-opacity-90 transition-opacity"
-                  >
-                    View Packages & Order
-                  </Link>
+                  <GridOrderActions product={product} />
                 </div>
               </div>
             ))}
