@@ -19,7 +19,7 @@ export function OrderBuilder() {
 
   if (totalItems === 0) return null;
 
-  const shippingFee = formData.shipping === "UK" ? 18 : 30;
+  const shippingFee = 9.99;
   const finalPrice = finalSubtotal + shippingFee;
 
   const isCrypto = formData.payment.toLowerCase().includes("crypto");

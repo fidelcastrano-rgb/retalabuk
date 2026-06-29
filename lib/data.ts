@@ -1023,7 +1023,7 @@ export const products: Product[] = rawProducts.map((product) => ({
 }));
 
 export const faqs: FAQ[] = [
-  { question: "What are your shipping fees?", answer: "Shipping is £18 for the UK, and £30 for other international destinations (Europe, Australia, Ireland).", category: "Delivery" },
+  { question: "What are your shipping fees?", answer: "Shipping is a flat rate of £9.99 for all destinations (including the UK, Europe, Australia, and Ireland).", category: "Delivery" },
   { question: "What payment methods do you accept?", answer: "We accept Crypto (Bitcoin, USDT, Ethereum), Bank Transfer, Revolut, and Skrill. However, for orders below £100, we ONLY accept Crypto. Crypto is the best and preferred payment option for those who want to be anonymous.", category: "Buying & Ordering" },
   { question: "How do I place a bulk order?", answer: "Use our Order Builder by adding products and clicking 'Order via WhatsApp'. We will process your invoice there.", category: "Buying & Ordering" },
   { question: "Do you ship internationally?", answer: "We focus on UK, Europe, and Australia. Please inquire via contact page for other regions.", category: "Delivery" },
