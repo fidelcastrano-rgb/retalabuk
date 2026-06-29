@@ -1011,6 +1011,21 @@ const rawProducts: Product[] = [
       packageContents: "Lyophilized powder per vial.",
       storage: "Store lyophilized powder at -20°C.",
       supplyChain: "Directly sourced from trusted synthesizing partners."
+    },
+    {
+      slug: "bacteriostatic-water-pfizer",
+      name: "Bacteriostatic Water (Pfizer)",
+      tag: "ANCILLARY",
+      description: "PLEASE NOTE: Due to nationwide shortages, customers may receive U.S. Hospira branded Bacteriostatic Water in substitution. Identical product produced by the same company (Hospira owned by Pfizer) branded differently in U.S./Canada.\n\nThis listing contains 1 bottle (30mL) of Pfizer or Hospira Bacteriostatic Water for reconstitution of lyophilized peptides and HGH.\n\nBacteriostatic Water for Injection, USP is a sterile, nonpyrogenic preparation of water for injection containing 0.9% (9 mg/mL) of benzyl alcohol added as a preservative. It is supplied in a multiple-dose container from which repeated withdrawals may be made to dilute or dissolve drugs for injection.",
+      image: "https://growthguys.is/wp-content/uploads/Mockup-12-scaled.jpg",
+      coaUrl: "/coa/placeholder.pdf",
+      variants: [
+        { id: "1b", name: "1x 30mL Bottle", price: 20, savingsLabel: "" },
+        { id: "5b", name: "5x 30mL Bottles", price: 90, savingsLabel: "Save £10" }
+      ],
+      packageContents: "1x 30mL Multiple-Dose Vial.",
+      storage: "This product can be stored at room temperature.",
+      supplyChain: "Manufactured by Pfizer / Hospira."
     }
 ];
 

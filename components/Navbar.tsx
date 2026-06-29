@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -46,36 +47,49 @@ export function Navbar() {
           </nav>
 
           <div className="md:hidden flex items-center">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-[#0F172A]" aria-label="Toggle Menu">
+            <button 
+              onClick={() => setIsOpen(!isOpen)} 
+              className="text-[#0F172A] p-2.5 rounded-lg hover:bg-slate-100/80 active:bg-slate-200/80 transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
+              aria-label="Toggle Menu"
+            >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
       </div>
 
-      {isOpen && (
-        <div className="md:hidden fixed inset-0 top-16 bg-[#F8FAFC] z-40 overflow-y-auto">
-          <div className="flex flex-col p-4 space-y-4">
-             {navItems.map((item) => (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="md:hidden absolute top-full left-0 right-0 h-[calc(100vh-4rem)] bg-[#F8FAFC] z-50 overflow-y-auto border-t border-[#CBD5E1] shadow-2xl"
+          >
+            <div className="flex flex-col p-6 space-y-4">
+              {navItems.map((item) => (
+                <Link 
+                  key={item.href} 
+                  href={item.href} 
+                  className={`block px-4 py-3 text-lg font-semibold rounded-lg transition-all ${pathname === item.href ? "bg-[#EEF2F7] text-[#2563EB]" : "text-[#0F172A] hover:bg-slate-100"}`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
               <Link 
-                key={item.href} 
-                href={item.href} 
-                className={`block px-4 py-3 text-lg font-medium rounded ${pathname === item.href ? "bg-[#EEF2F7] text-[#2563EB]" : "text-[#0F172A]"}`}
+                href="/products" 
+                className="mt-6 block w-full text-center px-4 py-3.5 rounded-lg text-lg font-bold bg-[#FF6B1A] text-white hover:bg-opacity-95 active:scale-[0.99] transition-all shadow-md"
                 onClick={() => setIsOpen(false)}
               >
-                {item.label}
+                Order Now
               </Link>
-            ))}
-            <Link 
-              href="/products" 
-              className="mt-4 block w-full text-center px-4 py-3 rounded text-lg font-bold bg-[#FF6B1A] text-white"
-              onClick={() => setIsOpen(false)}
-            >
-              Order Now
-            </Link>
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
+
