@@ -325,8 +325,8 @@ const rawProducts: Product[] = [
   {
     slug: "igf-1-lr3-1mg",
     name: "IGF-1 LR3 1mg",
-    tag: "PEPTIDE",
-    description: "IGF-1 LR3 (Insulin-like Growth Factor 1 Long Arg3) is a synthetic form of IGF-1, a protein that plays a key role in growth, development, and cellular repair. It's similar to the naturally occurring IGF-1 in your body but has a longer half-life due to a modification in its structure—specifically, the substitution of the amino acid ...",
+    tag: "HGH",
+    description: "IGF-1 LR3 (Insulin-like Growth Factor 1 Long Arg3) is a synthetic form of IGF-1, a protein that plays a key role in growth, development, and cellular repair. It's similar to the naturally occurring IGF-1 in your body but has a longer half-life due to a modification in its structure—specifically, the substitution of the active amino acids to increase biological activity.",
     image: "https://growthguys.is/wp-content/uploads/IGF-1-LR3-Orange-1024x930.jpg",
     coaUrl: "/coa/igf-1-lr3-1mg.pdf",
     variants: [
@@ -1026,6 +1026,51 @@ const rawProducts: Product[] = [
       packageContents: "1x 30mL Multiple-Dose Vial.",
       storage: "This product can be stored at room temperature.",
       supplyChain: "Manufactured by Pfizer / Hospira."
+    },
+    {
+      slug: "hgh-batch-ggc32-110iu-kit",
+      name: "HGH – Batch GGC32 110iu Kit",
+      tag: "HGH",
+      badge: "HPLC Tested",
+      description: "Batch GGC32 Human Growth Hormone (191AA HGH) Kit contains 10 vials of high-quality Somatropin. Independent 3rd-party laboratory testing verifies an outstanding purity of 97.27% with an average mass of 11.03 iu per vial (110iu total kit). Widely researched for its role in cellular repair, fat loss, muscle regeneration, and anti-aging applications. Manufactured under strict guidelines to ensure maximum stability and biopotency.",
+      image: "https://growthguys.is/wp-content/uploads/HGH-Kit-White@0.5x-600x600.webp",
+      coaUrl: "/coa/hgh-batch-ggc32-110iu-kit.pdf",
+      variants: [
+        { id: "1k", name: "1x Kit (110iu)", price: 165, savingsLabel: "" }
+      ],
+      packageContents: "10x 11iu Vials.",
+      storage: "Store lyophilized powder at -20°C.",
+      supplyChain: "Directly sourced from trusted synthesizing partners."
+    },
+    {
+      slug: "hgh-batch-ggc36-420iu-kit",
+      name: "HGH – Batch GGC36 420iu Kit",
+      tag: "HGH",
+      badge: "Top Batch",
+      description: "Batch GGC36 Human Growth Hormone (191AA HGH) Kit represents our premium high-dose Somatropin offering. This kit contains 10 vials, each verified by independent 3rd-party HPLC testing to contain a purity of 97.85% and an average active mass of 42.72 iu of premium HGH per vial (over 420iu total per kit). Perfect for advanced research requirements focusing on tissue growth, metabolic rate enhancement, muscular hypertrophy, and accelerated physical recovery.",
+      image: "https://growthguys.is/wp-content/uploads/HGH-Kit-Purple@0.5x-600x600.webp",
+      coaUrl: "/coa/hgh-batch-ggc36-420iu-kit.pdf",
+      variants: [
+        { id: "1k", name: "1x Kit (420iu)", price: 420, savingsLabel: "" }
+      ],
+      packageContents: "10x 42.7iu Vials.",
+      storage: "Store lyophilized powder at -20°C.",
+      supplyChain: "Directly sourced from trusted synthesizing partners."
+    },
+    {
+      slug: "cloudtropin-batch-ggc34-430iu-kit",
+      name: "“Cloudtropin” Batch GGC34 430iu Kit",
+      tag: "HGH",
+      badge: "Value Buy",
+      description: "“Cloudtropin” Batch GGC34 (191AA HGH) is a specialized, budget-friendly high-dose Somatropin kit containing 10 vials (43iu per vial, 430iu total). This batch of HGH is manufactured using pharmaceutical-grade API and excipients, but due to an exceptionally high concentration, it remains slightly cloudy/foggy upon reconstitution. This 'Fog Factor' does not affect its verified 96.65% purity or active potency. Offering maximum performance and biopotency at an incredible value.",
+      image: "https://growthguys.is/wp-content/uploads/Cloudtropin-Transparent-Background-600x600.png",
+      coaUrl: "/coa/cloudtropin-batch-ggc34-430iu-kit.pdf",
+      variants: [
+        { id: "1k", name: "1x Kit (430iu)", price: 300, savingsLabel: "" }
+      ],
+      packageContents: "10x 43iu Vials.",
+      storage: "Store lyophilized powder at -20°C.",
+      supplyChain: "Directly sourced from trusted synthesizing partners."
     }
 ];
 
