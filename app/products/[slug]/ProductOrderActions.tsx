@@ -59,6 +59,16 @@ export function ProductOrderActions({ product }: { product: Product }) {
             </button>
           ))}
         </div>
+        {selectedVariant.name.toLowerCase().includes("vial") && (
+          <div className="text-sm text-[#E11D48] font-bold bg-[#FFF1F2] border border-[#FECDD3] rounded-lg p-3 text-center">
+            ⚠️ Minimum Order Quantity: 10 Vials.<br/>
+            <span className="text-xs font-medium text-[#475569]">
+              {selectedVariant.name.includes("5x") 
+                ? "Selecting '5x Vials' requires a minimum order of 2 packs." 
+                : "Selecting '1x Vial' requires a minimum order of 10 vials."}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="bg-[#1D4ED8]/10 border border-[#1D4ED8]/30 rounded-lg p-3 text-sm font-medium text-[#1D4ED8] flex items-center gap-2">

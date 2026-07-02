@@ -3,6 +3,20 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { calculateDiscount, getDiscountMessage } from "@/lib/discounts";
 
+export function getMinQtyForVariant(variantName: string): number {
+  const name = variantName.toLowerCase();
+  if (name.includes("vial")) {
+    if (name.includes("5x")) {
+      return 2; // 2 * 5 = 10 vials minimum
+    }
+    if (name.includes("1x")) {
+      return 10; // 10 * 1 = 10 vials minimum
+    }
+    return 10;
+  }
+  return 1;
+}
+
 export interface OrderItem {
   key: string;
   name: string;
@@ -27,6 +41,7 @@ interface OrderContextProps {
   sendWA: () => void;
   sendEmail: () => void;
   whatsappNumber: string;
+  getMinQtyForVariant: (variantName: string) => number;
 }
 
 const OrderContext = createContext<OrderContextProps | undefined>(undefined);
@@ -52,6 +67,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
   const addToOrder = (newItem: Omit<OrderItem, "key" | "qty">) => {
     const key = `${newItem.slug}_${newItem.variant.replace(/\s+/g, "")}`;
+    const minQty = getMinQtyForVariant(newItem.variant);
     setItems((prev) => {
       const existing = prev.find((item) => item.key === key);
       if (existing) {
@@ -59,7 +75,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
           item.key === key ? { ...item, qty: item.qty + 1 } : item
         );
       }
-      return [...prev, { ...newItem, key, qty: 1 }];
+      return [...prev, { ...newItem, key, qty: minQty }];
     });
   };
 
@@ -68,7 +84,13 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   };
 
   const updateQuantity = (key: string, qty: number) => {
-    setItems((prev) => prev.map((item) => item.key === key ? { ...item, qty: Math.max(1, qty) } : item));
+    setItems((prev) => prev.map((item) => {
+      if (item.key === key) {
+        const minQty = getMinQtyForVariant(item.variant);
+        return { ...item, qty: Math.max(minQty, qty) };
+      }
+      return item;
+    }));
   };
 
   const clearOrder = () => setItems([]);
@@ -104,7 +126,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <OrderContext.Provider value={{ items, addToOrder, removeItem, updateQuantity, clearOrder, totalItems, totalPrice, discountPercentage, discountAmount, finalSubtotal, discountMessage, sendWA, sendEmail, whatsappNumber }}>
+    <OrderContext.Provider value={{ items, addToOrder, removeItem, updateQuantity, clearOrder, totalItems, totalPrice, discountPercentage, discountAmount, finalSubtotal, discountMessage, sendWA, sendEmail, whatsappNumber, getMinQtyForVariant }}>
       {children}
     </OrderContext.Provider>
   );

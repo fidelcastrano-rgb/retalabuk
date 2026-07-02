@@ -41,6 +41,11 @@ export function GridOrderActions({ product }: { product: Product }) {
             ))}
          </select>
       </div>
+      {selectedVariant.name.toLowerCase().includes("vial") && (
+        <div className="text-xs text-[#E11D48] font-bold bg-[#FFF1F2] border border-[#FECDD3] rounded p-2 text-center">
+          ⚠️ MOQ: 10 Vials ({selectedVariant.name.includes("5x") ? "requires 2x packs" : "requires 10x vials"})
+        </div>
+      )}
       <button
         onClick={handleAdd}
         className={`w-full py-2.5 rounded font-bold text-sm flex items-center justify-center transition-all ${

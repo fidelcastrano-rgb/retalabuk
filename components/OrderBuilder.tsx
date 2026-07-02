@@ -5,7 +5,7 @@ import { X, Minus, Plus, MessageCircle, Mail, ChevronDown, ChevronUp, Tag } from
 import { useState } from "react";
 
 export function OrderBuilder() {
-  const { items, totalItems, totalPrice: subtotalPrice, discountPercentage, discountAmount, finalSubtotal, discountMessage, removeItem, updateQuantity, clearOrder, whatsappNumber } = useOrder();
+  const { items, totalItems, totalPrice: subtotalPrice, discountPercentage, discountAmount, finalSubtotal, discountMessage, removeItem, updateQuantity, clearOrder, whatsappNumber, getMinQtyForVariant } = useOrder();
   
   const [isMinimized, setIsMinimized] = useState(false);
   const [formData, setFormData] = useState({
@@ -79,25 +79,33 @@ export function OrderBuilder() {
           <span>{discountMessage}</span>
         </div>
 
-        {items.map((item) => (
-          <div key={item.key} className="flex justify-between items-start border-b border-[#475569] pb-3 text-sm">
-            <div className="flex-1">
-              <div className="font-medium text-white">{item.name}</div>
-              <div className="text-[#CBD5E1] text-xs mt-1">{item.variant}</div>
-              <div className="font-bold mt-1 text-[#10B981]">£{(item.price * item.qty).toFixed(2)}</div>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <button onClick={() => removeItem(item.key)} className="text-[#FF6B1A] hover:text-white transition-colors" aria-label="Remove item">
-                 <X size={16} />
-              </button>
-              <div className="flex items-center gap-2 bg-[#EEF2F7] text-[#0F172A] rounded px-2 py-0.5 text-xs">
-                <button onClick={() => updateQuantity(item.key, item.qty - 1)} disabled={item.qty <= 1} className="hover:text-[#FF6B1A] disabled:opacity-30"><Minus size={12} /></button>
-                <span className="font-bold w-4 text-center">{item.qty}</span>
-                <button onClick={() => updateQuantity(item.key, item.qty + 1)} className="hover:text-[#FF6B1A]"><Plus size={12} /></button>
+        {items.map((item) => {
+          const minQty = getMinQtyForVariant(item.variant);
+          return (
+            <div key={item.key} className="flex justify-between items-start border-b border-[#475569] pb-3 text-sm">
+              <div className="flex-1">
+                <div className="font-medium text-white">{item.name}</div>
+                <div className="text-[#CBD5E1] text-xs mt-1">{item.variant}</div>
+                {minQty > 1 && (
+                  <div className="text-amber-400 text-[10px] font-bold mt-0.5">
+                    ⚠️ Min. Qty of {minQty} ({minQty * (item.variant.includes("5x") ? 5 : 1)} Vials) applies
+                  </div>
+                )}
+                <div className="font-bold mt-1 text-[#10B981]">£{(item.price * item.qty).toFixed(2)}</div>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <button onClick={() => removeItem(item.key)} className="text-[#FF6B1A] hover:text-white transition-colors" aria-label="Remove item">
+                   <X size={16} />
+                </button>
+                <div className="flex items-center gap-2 bg-[#EEF2F7] text-[#0F172A] rounded px-2 py-0.5 text-xs">
+                  <button onClick={() => updateQuantity(item.key, item.qty - 1)} disabled={item.qty <= minQty} className="hover:text-[#FF6B1A] disabled:opacity-30"><Minus size={12} /></button>
+                  <span className="font-bold w-4 text-center">{item.qty}</span>
+                  <button onClick={() => updateQuantity(item.key, item.qty + 1)} className="hover:text-[#FF6B1A]"><Plus size={12} /></button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         
         {/* Checkout Form */}
         <div className="pt-2 space-y-3">
