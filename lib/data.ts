@@ -1072,6 +1072,252 @@ const rawProducts: Product[] = [
       storage: "Store lyophilized powder at -20°C.",
       supplyChain: "Directly sourced from trusted synthesizing partners."
     }
+,
+  {
+    slug: "alluvi-retatrutide",
+    name: "Alluvi Retatrutide",
+    tag: "ALLUVI",
+    description: "Buy Alluvi Retatrutide in the UK for research purposes only. Research-grade triple-agonist peptide supplied with clear documentation and UK-focused compliance standards.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/68d67d2e7b1d280bcbfa08e8_40mg-bundle-scaled-1-1.jpg",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "20mg",
+            price: 165,
+            savingsLabel: ""
+      },
+      {
+            id: "var_1",
+            name: "40mg",
+            price: 255,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "alluvi-retatrutide-20mg",
+    name: "Alluvi Retatrutide 20mg",
+    tag: "ALLUVI",
+    description: "Buy Alluvi Retatrutide 20mg in the UK for research purposes only. Trusted research-grade peptide supplied with clear documentation and UK compliance standards.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/Retatrutide-20MG-With-Pen-1-scaled-1-2.jpg",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "1 Item",
+            price: 165,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "alluvi-tirzepatide",
+    name: "Alluvi Tirzepatide",
+    tag: "ALLUVI",
+    description: "Buy Alluvi Tirzepatide in the UK for research purposes only. Trusted research-grade dual-agonist peptide supplied with clear documentation and UK compliance standards.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/Tirzepatide-40mg-3.jpg",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "20mg",
+            price: 145,
+            savingsLabel: ""
+      },
+      {
+            id: "var_1",
+            name: "40mg",
+            price: 210,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "bpc-157-tb-500",
+    name: "BPC-157 & TB-500",
+    tag: "PEPTIDE",
+    description: "Buy BPC-157 & TB-500 in the UK for research purposes only. Trusted research-grade peptides supplied with clear documentation and UK compliance standards.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/BPC157-TB500-1.png",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "1 Item",
+            price: 155,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "glow-ghk-cu-70mg",
+    name: "Glow GHK-CU 70mg",
+    tag: "PEPTIDE",
+    description: "Buy Glow GHK-Cu 70mg in the UK for research purposes only. Trusted research-grade copper peptide supplied with clear documentation and UK compliance standards.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/all-Glow-1-6.jpg",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "1 Item",
+            price: 135,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "nad-1000mg",
+    name: "NAD+ 1000mg",
+    tag: "PEPTIDE",
+    description: "Buy NAD+ 1000mg in the UK for research purposes only. Trusted research-grade coenzyme supplied with clear documentation and UK compliance standards.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/NAD-1000mg-1.jpg",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "1 Item",
+            price: 185,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "retatrutide-40mg",
+    name: "Retatrutide 40mg",
+    tag: "PEPTIDE",
+    description: "Buy Retatrutide 40mg in the UK for research purposes only. Trusted research-grade triple-agonist peptide supplied with clear documentation and UK compliance standards.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/photoroom_20250912_085922-6.webp",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "1 Item",
+            price: 275,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "revion-retatrutide",
+    name: "Revion Retatrutide",
+    tag: "PEPTIDE",
+    description: "Purchase high-quality Revion Retatrutide in the UK. Research-grade peptide for metabolic studies and scientific research. Fast, secure UK delivery.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/imgi_63_432a04a3-7674-4228-8d42-aceb7e86773d_2-1-4.jpg",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "1 Item",
+            price: 275,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "revion-semaglutide",
+    name: "Revion Semaglutide",
+    tag: "PEPTIDE",
+    description: "Buy Revion Semaglutide in the UK for research purposes only. Trusted research-grade GLP-1 receptor agonist peptide supplied with clear documentation and UK compliance standards.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/f9b58e30-5744-4165-8cbb-949d40b1fc5f.jpeg",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "5mg",
+            price: 145,
+            savingsLabel: ""
+      },
+      {
+            id: "var_1",
+            name: "10mg",
+            price: 210,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "revion-tirzepatide",
+    name: "Revion Tirzepatide",
+    tag: "PEPTIDE",
+    description: "Order trusted, premium Revion Tirzepatide in the UK. Research-grade peptide for reliable metabolic studies and scientific experiments with fast UK delivery.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/revion-pens-shadows.zip-4-1024x1024-1-7.webp",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "30mg",
+            price: 165,
+            savingsLabel: ""
+      },
+      {
+            id: "var_1",
+            name: "60mg",
+            price: 210,
+            savingsLabel: ""
+      },
+      {
+            id: "var_2",
+            name: "90mg",
+            price: 290,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "vls-retatrutide",
+    name: "VLS Retatrutide",
+    tag: "PEPTIDE",
+    description: "Buy VLS Retatrutide in the UK for research purposes only. Trusted research-grade multi-agonist peptide supplied with clear documentation and UK compliance standards.",
+    image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/R-40mg_2_1024x1024-1-1.webp",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "var_0",
+            name: "20mg",
+            price: 155,
+            savingsLabel: ""
+      },
+      {
+            id: "var_1",
+            name: "40mg",
+            price: 275,
+            savingsLabel: ""
+      }
+],
+    packageContents: "Pre-calibrated research device.",
+    storage: "Store as per manufacturer guidelines.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
+  }
 ];
 
 export const products: Product[] = rawProducts.map((product) => ({
