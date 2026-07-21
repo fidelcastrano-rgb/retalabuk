@@ -1362,6 +1362,28 @@ const rawProducts: Product[] = [
     packageContents: "1x KwikPen pre-filled device (4 doses) + sterile needles.",
     storage: "Store unopened pens in refrigerator (2°C - 8°C). Do not freeze.",
     supplyChain: "Directly sourced from trusted UK & EU clinical distributors."
+  },
+  {
+    slug: "ozempic-weight-loss-pen-semaglutide",
+    name: "Ozempic® Weight Loss Pen (Semaglutide)",
+    tag: "ALLUVI",
+    badge: "PRESCRIPTION",
+    description: "Ozempic® (Semaglutide) is a highly effective, prescription-only injectable pen licensed for type 2 diabetes and widely used for chronic weight management. By acting as a glucagon-like peptide-1 (GLP-1) receptor agonist, Ozempic slows digestion, enhances feeling of fullness, and reduces overall appetite. Based on clinical datasets (including SELECT and SUSTAIN), patients achieved sustained and significant weight reduction when integrated with healthy lifestyle adjustments. Sourced securely from certified international and domestic pharmacies.",
+    image: "/ozempic-pen.jpg",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      { id: "oz_0.25_1", name: "0.25mg Dose Pen (1 Pen)", price: 295.00, savingsLabel: "" },
+      { id: "oz_0.25_2", name: "0.25mg Dose Pen (2 Pens)", price: 549.00, savingsLabel: "Save £41" },
+      { id: "oz_0.50_1", name: "0.5mg Dose Pen (1 Pen)", price: 295.00, savingsLabel: "" },
+      { id: "oz_0.50_2", name: "0.5mg Dose Pen (2 Pens)", price: 549.00, savingsLabel: "Save £41" },
+      { id: "oz_1.00_1", name: "1.0mg Dose Pen (1 Pen)", price: 329.90, savingsLabel: "" },
+      { id: "oz_1.00_2", name: "1.0mg Dose Pen (2 Pens)", price: 619.00, savingsLabel: "Save £40.80" },
+      { id: "oz_2.00_1", name: "2.0mg Dose Pen (1 Pen)", price: 429.79, savingsLabel: "" },
+      { id: "oz_2.00_2", name: "2.0mg Dose Pen (2 Pens)", price: 799.00, savingsLabel: "Save £60.58" }
+    ],
+    packageContents: "1x Pre-filled Ozempic Pen + NovoFine sterile needles.",
+    storage: "Store in refrigerator (2°C - 8°C). Protect from light. Do not freeze.",
+    supplyChain: "Sourced directly from verified Canadian & European pharmacies."
   }
 ];
 
