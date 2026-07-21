@@ -1329,19 +1329,39 @@ const rawProducts: Product[] = [
       {
             id: "1v",
             name: "1x Vial",
-            price: 90,
+            price: 63,
             savingsLabel: ""
       },
       {
             id: "5v",
             name: "5x Vials",
-            price: 410,
+            price: 287,
             savingsLabel: "Save £26"
       }
     ],
     packageContents: "Lyophilized powder per vial.",
     storage: "Store lyophilized powder at -20°C.",
     supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "mounjaro-weight-loss-kwikpen",
+    name: "Mounjaro® Weight Loss Pen (Tirzepatide)",
+    tag: "ALLUVI",
+    badge: "PRESCRIPTION",
+    description: "Mounjaro® (Tirzepatide) is an exceptionally powerful, prescription-only injectable pen licensed for chronic weight management. By mimicking dual natural gut hormones—GIP (glucose-dependent insulinotropic polypeptide) and GLP-1 (glucagon-like peptide-1)—Mounjaro regulates appetite, delays stomach emptying, and significantly reduces food cravings. Clinical trials (SURMOUNT-1) demonstrate that patients taking the maximum weekly dose of 15mg achieved an average of 22.5% body weight reduction (equivalent to 22.5kg lost for a 100kg baseline) over a 72-week course when paired with supportive dietary and exercise changes.",
+    image: "/mounjaro-pen.jpg",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      { id: "mj_2.5", name: "2.5mg KwikPen (Starter)", price: 193.84, savingsLabel: "" },
+      { id: "mj_5.0", name: "5mg KwikPen", price: 204.60, savingsLabel: "Save £10" },
+      { id: "mj_7.5", name: "7.5mg KwikPen", price: 269.22, savingsLabel: "Save £15" },
+      { id: "mj_10.0", name: "10mg KwikPen", price: 301.53, savingsLabel: "Save £20" },
+      { id: "mj_12.5", name: "12.5mg KwikPen", price: 323.06, savingsLabel: "Save £25" },
+      { id: "mj_15.0", name: "15mg KwikPen (Max)", price: 333.84, savingsLabel: "Save £30" }
+    ],
+    packageContents: "1x KwikPen pre-filled device (4 doses) + sterile needles.",
+    storage: "Store unopened pens in refrigerator (2°C - 8°C). Do not freeze.",
+    supplyChain: "Directly sourced from trusted UK & EU clinical distributors."
   }
 ];
 
