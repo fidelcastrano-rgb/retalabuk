@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Product } from '@/lib/types';
 import { GridOrderActions } from '@/components/GridOrderActions';
 import { motion, AnimatePresence } from 'motion/react';
+import { Search, X } from 'lucide-react';
 
 interface ProductCatalogProps {
   products: Product[];
@@ -15,6 +16,7 @@ type TabType = 'all' | 'hgh' | 'peptide' | 'alluvi' | 'ancillary';
 
 export function ProductCatalog({ products }: ProductCatalogProps) {
   const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const tabs = [
     { id: 'all' as TabType, label: 'All Products' },
@@ -25,31 +27,66 @@ export function ProductCatalog({ products }: ProductCatalogProps) {
   ];
 
   const filteredProducts = products.filter((product) => {
-    if (activeTab === 'all') return true;
-    return product.tag.toLowerCase() === activeTab;
+    const matchesTab = activeTab === 'all' || product.tag.toLowerCase() === activeTab;
+    
+    const matchesSearch = searchQuery
+      ? product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.tag.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+
+    return matchesTab && matchesSearch;
   });
 
   return (
     <>
-      {/* Dynamic Filter Bar */}
+      {/* Dynamic Filter & Search Bar */}
       <div className="sticky top-16 z-30 bg-white border-b border-[#CBD5E1] py-4 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-3 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          
+          {/* Tabs - Horizontal scrollable on small screens */}
+          <div className="flex gap-3 overflow-x-auto pb-1 md:pb-0 hide-scrollbar scroll-smooth flex-1 order-2 md:order-1">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                    isActive
+                      ? 'bg-[#2563EB] text-white shadow-md scale-105'
+                      : 'bg-[#EEF2F7] text-[#475569] hover:bg-[#CBD5E1] hover:text-[#0F172A]'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search Input - Full width on mobile, fixed width on desktop */}
+          <div className="relative w-full md:w-80 flex-shrink-0 order-1 md:order-2">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#94A3B8]">
+              <Search className="w-4 h-4" />
+            </span>
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-10 py-2 bg-[#F8FAFC] border border-[#CBD5E1] rounded-full text-sm text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 transition-all duration-200"
+            />
+            {searchQuery && (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                  isActive
-                    ? 'bg-[#2563EB] text-white shadow-md scale-105'
-                    : 'bg-[#EEF2F7] text-[#475569] hover:bg-[#CBD5E1] hover:text-[#0F172A]'
-                }`}
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#94A3B8] hover:text-[#475569] cursor-pointer"
+                aria-label="Clear Search"
               >
-                {tab.label}
+                <X className="w-4 h-4" />
               </button>
-            );
-          })}
+            )}
+          </div>
+
         </div>
       </div>
 
@@ -57,8 +94,21 @@ export function ProductCatalog({ products }: ProductCatalogProps) {
       <div className="py-12 bg-[#F8FAFC]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {filteredProducts.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-lg border border-[#CBD5E1] shadow-sm">
-              <p className="text-lg text-[#475569] font-medium">No products found in this category.</p>
+            <div className="text-center py-16 bg-white rounded-lg border border-[#CBD5E1] shadow-sm px-4">
+              <p className="text-lg text-[#475569] font-medium mb-4">
+                {searchQuery 
+                  ? `No products found matching "${searchQuery}"` 
+                  : 'No products found in this category.'
+                }
+              </p>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="px-5 py-2 bg-[#2563EB] text-white rounded-full text-sm font-bold shadow-md hover:bg-[#1D4ED8] transition-colors cursor-pointer"
+                >
+                  Clear Search
+                </button>
+              )}
             </div>
           ) : (
             <motion.div 

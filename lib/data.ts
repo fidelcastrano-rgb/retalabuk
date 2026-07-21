@@ -1317,6 +1317,31 @@ const rawProducts: Product[] = [
     packageContents: "Pre-calibrated research device.",
     storage: "Store as per manufacturer guidelines.",
     supplyChain: "Directly sourced from trusted synthesizing partners."
+  },
+  {
+    slug: "slu-pp-332-peptide-5mg-canada",
+    name: "SLU-PP-332 5mg",
+    tag: "PEPTIDE",
+    description: "Each vial contains 5mg of highly pure SLU-PP-332. SLU-PP-332 is a novel and powerful estrogen-related receptor (ERR) agonist, specifically targeting ERRα, ERRβ, and ERRγ. Known as an 'exercise mimetic' or 'exercise in a pill,' it stimulates mitochondrial biogenesis, enhances oxidative capacity, and promotes fat loss while preserving skeletal muscle mass. Designed strictly for laboratory and analytical research purposes.",
+    image: "/slu-pp-332-5mg-vial.webp",
+    coaUrl: "/coa/placeholder.pdf",
+    variants: [
+      {
+            id: "1v",
+            name: "1x Vial",
+            price: 90,
+            savingsLabel: ""
+      },
+      {
+            id: "5v",
+            name: "5x Vials",
+            price: 410,
+            savingsLabel: "Save £26"
+      }
+    ],
+    packageContents: "Lyophilized powder per vial.",
+    storage: "Store lyophilized powder at -20°C.",
+    supplyChain: "Directly sourced from trusted synthesizing partners."
   }
 ];
 
