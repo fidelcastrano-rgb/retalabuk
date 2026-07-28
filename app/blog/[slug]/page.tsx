@@ -83,7 +83,7 @@ export default async function BlogPostPage({ params }: Props) {
                <h3 className="text-2xl font-heading font-bold mb-4">Advance Your Research Today</h3>
                <p className="text-[#CBD5E1] mb-6">Access UK&apos;s highest purity, independently verified peptides.</p>
                <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <a href="https://wa.me/447341056054" className="px-6 py-3 bg-[#25D366] text-white rounded font-bold hover:bg-opacity-90">Order via WhatsApp</a>
+                  <a href="https://wa.me/447723217812" className="px-6 py-3 bg-[#25D366] text-white rounded font-bold hover:bg-opacity-90">Order via WhatsApp</a>
                   <Link href="/products" className="px-6 py-3 bg-[#EEF2F7] text-[#0F172A] rounded font-bold hover:bg-[#CBD5E1]">View Products</Link>
                </div>
             </div>

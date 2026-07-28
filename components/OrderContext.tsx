@@ -48,7 +48,7 @@ const OrderContext = createContext<OrderContextProps | undefined>(undefined);
 
 export function OrderProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<OrderItem[]>([]);
-  const whatsappNumber = "447341056054"; // Active WhatsApp number
+  const whatsappNumber = "447723217812"; // Active WhatsApp number
 
   // Optionally load from localStorage on mount
   useEffect(() => {

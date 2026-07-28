@@ -8,7 +8,7 @@ import { Tag } from "lucide-react";
 export function ProductOrderActions({ product }: { product: Product }) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(product.variants[0]);
   const [showAdded, setShowAdded] = useState(false);
-  const { addToOrder, sendWA, discountMessage } = useOrder();
+  const { addToOrder, sendWA, discountMessage, whatsappNumber } = useOrder();
 
   const handleAdd = () => {
     addToOrder({
@@ -25,7 +25,7 @@ export function ProductOrderActions({ product }: { product: Product }) {
   const handleWAOrderInfo = () => {
     // Generate simple intent to order this specific item.
     const text = `Hello RETA LAB UK, I'd like to order: ${product.name} - ${selectedVariant.name} - £${selectedVariant.price.toFixed(2)}`;
-    window.open(`https://wa.me/440123456789?text=${encodeURIComponent(text)}`, "_blank");
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
   return (

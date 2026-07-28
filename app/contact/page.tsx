@@ -21,8 +21,8 @@ export default function ContactPage() {
                <h2 className="text-2xl font-bold font-heading text-[#0F172A] mb-2">WhatsApp Ordering</h2>
                <p className="text-[#475569] mb-6">Fastest response times and secure order processing.</p>
                
-               <a href="https://wa.me/447341056054" className="inline-block w-full text-center py-3 bg-[#25D366] text-white font-bold rounded hover:bg-opacity-90">
-                 Message +44 7341 056054
+               <a href="https://wa.me/447723217812" className="inline-block w-full text-center py-3 bg-[#25D366] text-white font-bold rounded hover:bg-opacity-90">
+                 Message +44 7723 217812
                </a>
                
                <table className="w-full mt-6 text-sm text-[#475569]">
