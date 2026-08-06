@@ -23,7 +23,7 @@ const rawProducts: Product[] = [
     image: "https://peptidelabuk.co.uk/wp-content/uploads/2026/04/68c153351d1a646053b66e98_Retatrutide-5MG-With-Pen-1-scaled.jpg",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
-      { id: "var_0", name: "1 Item", price: 100, savingsLabel: "" }
+      { id: "var_0", name: "1 Item", price: 146.15385, savingsLabel: "" }
     ],
     packageContents: "Pre-calibrated research device.",
     storage: "Store as per manufacturer guidelines.",
