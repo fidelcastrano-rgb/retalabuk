@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { calculateDiscount, getDiscountMessage } from "@/lib/discounts";
+import { calculateDiscount, getDiscountMessage, Coupon, validateCoupon } from "@/lib/discounts";
 
 export function getMinQtyForVariant(variantName: string): number {
   const name = variantName.toLowerCase();
@@ -33,9 +33,13 @@ interface OrderContextProps {
   updateQuantity: (key: string, qty: number) => void;
   clearOrder: () => void;
   totalItems: number;
-  totalPrice: number; // This is now original subtotal
+  totalPrice: number; // This is original subtotal before discounts
   discountPercentage: number;
   discountAmount: number;
+  appliedCoupon: Coupon | null;
+  couponDiscountAmount: number;
+  applyCouponCode: (code: string) => { success: boolean; message: string };
+  removeCoupon: () => void;
   finalSubtotal: number;
   discountMessage: string;
   sendWA: () => void;
@@ -48,6 +52,7 @@ const OrderContext = createContext<OrderContextProps | undefined>(undefined);
 
 export function OrderProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<OrderItem[]>([]);
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const whatsappNumber = "447723217812"; // Active WhatsApp number
 
   // Optionally load from localStorage on mount
@@ -59,11 +64,25 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         setItems(JSON.parse(saved));
       } catch (e) {}
     }
+    const savedCoupon = localStorage.getItem("reta_coupon");
+    if (savedCoupon) {
+      try {
+        setAppliedCoupon(JSON.parse(savedCoupon));
+      } catch (e) {}
+    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem("reta_order", JSON.stringify(items));
   }, [items]);
+
+  useEffect(() => {
+    if (appliedCoupon) {
+      localStorage.setItem("reta_coupon", JSON.stringify(appliedCoupon));
+    } else {
+      localStorage.removeItem("reta_coupon");
+    }
+  }, [appliedCoupon]);
 
   const addToOrder = (newItem: Omit<OrderItem, "key" | "qty">) => {
     const key = `${newItem.slug}_${newItem.variant.replace(/\s+/g, "")}`;
@@ -93,14 +112,41 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const clearOrder = () => setItems([]);
+  const clearOrder = () => {
+    setItems([]);
+    setAppliedCoupon(null);
+  };
+
+  const applyCouponCode = (code: string): { success: boolean; message: string } => {
+    const result = validateCoupon(code);
+    if (!result.valid || !result.coupon) {
+      return { success: false, message: result.error || "Invalid coupon code." };
+    }
+    setAppliedCoupon(result.coupon);
+    return { success: true, message: `Coupon '${result.coupon.code}' applied! (${result.coupon.description})` };
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+  };
 
   const totalItems = items.reduce((acc, item) => acc + item.qty, 0);
   const totalPrice = items.reduce((acc, item) => acc + item.price * item.qty, 0);
 
   const discountPercentage = calculateDiscount(totalItems);
   const discountAmount = totalPrice * (discountPercentage / 100);
-  const finalSubtotal = totalPrice - discountAmount;
+  const subtotalAfterVolume = totalPrice - discountAmount;
+
+  let couponDiscountAmount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === "percent") {
+      couponDiscountAmount = subtotalAfterVolume * (appliedCoupon.value / 100);
+    } else if (appliedCoupon.type === "fixed") {
+      couponDiscountAmount = Math.min(subtotalAfterVolume, appliedCoupon.value);
+    }
+  }
+
+  const finalSubtotal = Math.max(0, subtotalAfterVolume - couponDiscountAmount);
   const discountMessage = getDiscountMessage(totalItems, discountAmount);
 
   const formatOrderText = () => {
@@ -112,6 +158,9 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     if (discountAmount > 0) {
       text += `%0AVolume Discount (${discountPercentage}%): -£${discountAmount.toFixed(2)}`;
     }
+    if (appliedCoupon && couponDiscountAmount > 0) {
+      text += `%0ACoupon Code (${appliedCoupon.code}): -£${couponDiscountAmount.toFixed(2)}`;
+    }
     text += `%0AFinal Subtotal: £${finalSubtotal.toFixed(2)}`;
     window.open(`https://wa.me/${whatsappNumber}?text=${text}`, "_blank");
   };
@@ -121,12 +170,35 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     if (discountAmount > 0) {
       text += `\nVolume Discount (${discountPercentage}%): -£${discountAmount.toFixed(2)}`;
     }
+    if (appliedCoupon && couponDiscountAmount > 0) {
+      text += `\nCoupon Code (${appliedCoupon.code}): -£${couponDiscountAmount.toFixed(2)}`;
+    }
     text += `\nFinal Subtotal: £${finalSubtotal.toFixed(2)}`;
     window.open(`mailto:sales@reta-lab.co.uk?subject=New Order Enquiry&body=${encodeURIComponent(text)}`);
   };
 
   return (
-    <OrderContext.Provider value={{ items, addToOrder, removeItem, updateQuantity, clearOrder, totalItems, totalPrice, discountPercentage, discountAmount, finalSubtotal, discountMessage, sendWA, sendEmail, whatsappNumber, getMinQtyForVariant }}>
+    <OrderContext.Provider value={{ 
+      items, 
+      addToOrder, 
+      removeItem, 
+      updateQuantity, 
+      clearOrder, 
+      totalItems, 
+      totalPrice, 
+      discountPercentage, 
+      discountAmount, 
+      appliedCoupon,
+      couponDiscountAmount,
+      applyCouponCode,
+      removeCoupon,
+      finalSubtotal, 
+      discountMessage, 
+      sendWA, 
+      sendEmail, 
+      whatsappNumber, 
+      getMinQtyForVariant 
+    }}>
       {children}
     </OrderContext.Provider>
   );
