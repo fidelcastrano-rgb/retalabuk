@@ -1,7 +1,7 @@
 "use client";
 
 import { useOrder } from "./OrderContext";
-import { X, Minus, Plus, MessageCircle, Mail, ChevronDown, ChevronUp, Tag } from "lucide-react";
+import { X, Minus, Plus, MessageCircle, Mail, ChevronDown, ChevronUp, Tag, CreditCard, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
 import { useState } from "react";
 
 export function OrderBuilder() {
@@ -27,6 +27,8 @@ export function OrderBuilder() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; text: string } | null>(null);
+  const [cardLoading, setCardLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -34,7 +36,7 @@ export function OrderBuilder() {
     phone: "",
     address: "",
     shipping: "UK",
-    payment: "Crypto (Bitcoin)"
+    payment: "Credit / Debit Card"
   });
 
   if (totalItems === 0) return null;
@@ -42,11 +44,13 @@ export function OrderBuilder() {
   const shippingFee = 9.99;
   const finalPrice = finalSubtotal + shippingFee;
 
+  const isCreditCard = formData.payment.toLowerCase().includes("credit") || formData.payment.toLowerCase().includes("card");
   const isCrypto = formData.payment.toLowerCase().includes("crypto");
-  const isBelowMin = !isCrypto && finalSubtotal < 100;
+  const isBelowMin = !isCrypto && !isCreditCard && finalSubtotal < 100;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    if (checkoutError) setCheckoutError(null);
   };
 
   const handleApplyCoupon = (e: React.FormEvent) => {
@@ -62,6 +66,70 @@ export function OrderBuilder() {
   const handleRemoveCoupon = () => {
     removeCoupon();
     setCouponFeedback(null);
+  };
+
+  const validateCardCheckout = () => {
+    if (!formData.email.trim() || !formData.email.includes("@")) {
+      setCheckoutError("Please provide a valid email address for your order confirmation.");
+      return false;
+    }
+    setCheckoutError(null);
+    return true;
+  };
+
+  const handleCardCheckout = async () => {
+    if (!validateCardCheckout()) return;
+
+    setCardLoading(true);
+    setCheckoutError(null);
+
+    try {
+      const payload = {
+        customer: {
+          name: formData.name.trim() || "Customer",
+          email: formData.email.trim(),
+          phone: formData.phone.trim() || undefined,
+        },
+        pricing: {
+          totalGBP: finalPrice.toFixed(2),
+          subtotalGBP: finalSubtotal.toFixed(2),
+          shippingGBP: shippingFee.toFixed(2),
+        },
+        shipping: {
+          region: formData.shipping,
+          address: formData.address.trim(),
+        },
+        items: items.map(it => ({
+          name: it.name,
+          variant: it.variant,
+          qty: it.qty,
+          price: it.price,
+        })),
+        appUrl: typeof window !== "undefined" ? window.location.origin : undefined,
+      };
+
+      const res = await fetch("/api/checkout/bachs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to initialize Bachs Credit Card checkout.");
+      }
+
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else {
+        throw new Error("No checkout URL returned from payment gateway.");
+      }
+    } catch (err: any) {
+      console.error("Card checkout error:", err);
+      setCheckoutError(err.message || "Failed to connect to Bachs Credit Card Gateway.");
+      setCardLoading(false);
+    }
   };
 
   const generateMessage = () => {
@@ -152,7 +220,7 @@ export function OrderBuilder() {
             <input name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name" className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2563EB]" />
             <input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="Phone" className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2563EB]" />
           </div>
-          <input name="email" type="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address" className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2563EB]" />
+          <input name="email" type="email" value={formData.email} onChange={handleInputChange} placeholder={isCreditCard ? "Email Address * (Required for Card Payment)" : "Email Address"} className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2563EB]" />
           <textarea name="address" value={formData.address} onChange={handleInputChange} placeholder="Shipping Address (Street, City, Postcode, Country)" rows={2} className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2563EB] resize-none" />
           
           <div className="grid grid-cols-2 gap-2">
@@ -166,8 +234,9 @@ export function OrderBuilder() {
               </select>
             </div>
             <div>
-              <label className="text-xs text-[#CBD5E1] mb-1 block">Payment Method</label>
-              <select name="payment" value={formData.payment} onChange={handleInputChange} className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#2563EB]">
+              <label className="text-xs text-[#CBD5E1] mb-1 block font-semibold text-white">Payment Method</label>
+              <select name="payment" value={formData.payment} onChange={handleInputChange} className="w-full bg-[#1E293B] border border-[#3B82F6] rounded px-3 py-1.5 text-sm text-white font-medium focus:outline-none focus:border-[#60A5FA]">
+                <option value="Credit / Debit Card">💳 Credit / Debit Card (Bachs)</option>
                 <option value="Crypto (Bitcoin)">Bitcoin</option>
                 <option value="Crypto (USDT)">USDT</option>
                 <option value="Crypto (ETHER)">Ether</option>
@@ -177,6 +246,23 @@ export function OrderBuilder() {
               </select>
             </div>
           </div>
+
+          {/* Credit Card Notice / Badge */}
+          {isCreditCard && (
+            <div className="bg-[#1E293B] border border-[#3B82F6]/50 rounded-lg p-2.5 text-xs text-[#CBD5E1] space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[#38BDF8] font-bold flex items-center gap-1.5">
+                  <CreditCard size={14} /> Bachs Credit Card Gateway
+                </span>
+                <span className="text-[10px] bg-[#10B981]/20 text-[#10B981] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                  <ShieldCheck size={11} /> 256-bit SSL
+                </span>
+              </div>
+              <p className="text-[11px] text-[#94A3B8] leading-tight">
+                Clicking &quot;Pay with Credit Card&quot; below will open the secure Bachs hosted checkout portal for instant card processing.
+              </p>
+            </div>
+          )}
 
           {/* Coupon Code Section */}
           <div className="pt-2 border-t border-[#475569]">
@@ -224,9 +310,16 @@ export function OrderBuilder() {
       </div>
 
       <div className="p-3 bg-[#0F172A] border-t border-[#475569]">
+        {checkoutError && (
+          <div className="bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs p-2.5 rounded mb-3 flex items-start gap-1.5">
+            <AlertCircle size={14} className="shrink-0 mt-0.5" />
+            <span>{checkoutError}</span>
+          </div>
+        )}
+
         {isBelowMin && (
           <div className="bg-amber-500/10 text-amber-300 text-xs p-2 rounded border border-amber-500/30 text-center font-medium mb-3 animate-pulse">
-            ⚠️ Minimum order is £100 for Bank Transfer, Revolut & Skrill. Select Crypto or add more items to proceed.
+            ⚠️ Minimum order is £100 for manual bank/transfer options. Select Credit Card / Crypto or add more items.
           </div>
         )}
         
@@ -262,31 +355,60 @@ export function OrderBuilder() {
           <span className="text-[#10B981]">£{finalPrice.toFixed(2)}</span>
         </div>
         
-        <div className="flex gap-2">
-          <button 
-            onClick={handleWA}
-            disabled={isBelowMin}
-            className={`flex-1 text-white py-2.5 rounded font-bold flex items-center justify-center gap-2 transition-all text-sm ${
-              isBelowMin ? "bg-slate-700 text-slate-400 cursor-not-allowed opacity-60" : "bg-[#FF6B1A] hover:bg-opacity-90 cursor-pointer shadow-md"
-            }`}
-          >
-            <MessageCircle size={18} />
-            Order via WhatsApp
-          </button>
-          
-          <button 
-            onClick={handleEmail}
-            disabled={isBelowMin}
-            className={`flex-1 bg-transparent border py-2.5 rounded font-bold flex items-center justify-center gap-2 transition-all text-sm ${
-              isBelowMin 
-                ? "border-slate-700 text-slate-500 cursor-not-allowed opacity-60" 
-                : "border-[#CBD5E1] text-white hover:bg-[#1D4ED8] hover:border-[#1D4ED8] cursor-pointer shadow-md"
-            }`}
-          >
-            <Mail size={18} />
-            Order via Email
-          </button>
-        </div>
+        {/* If Credit Card is selected, display the instant Bachs Card Checkout button prominently */}
+        {isCreditCard ? (
+          <div className="space-y-2">
+            <button
+              onClick={handleCardCheckout}
+              disabled={cardLoading}
+              className="w-full bg-[#10B981] hover:bg-[#059669] text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all text-sm shadow-lg cursor-pointer disabled:opacity-50"
+            >
+              {cardLoading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Connecting to Bachs Gateway...
+                </>
+              ) : (
+                <>
+                  <CreditCard size={18} />
+                  Pay with Credit Card (£{finalPrice.toFixed(2)})
+                </>
+              )}
+            </button>
+            <div className="flex items-center justify-center gap-3 text-[11px] text-[#94A3B8]">
+              <span>Or order manually:</span>
+              <button onClick={handleWA} className="text-[#FF6B1A] hover:underline cursor-pointer">WhatsApp</button>
+              <span>•</span>
+              <button onClick={handleEmail} className="text-[#38BDF8] hover:underline cursor-pointer">Email</button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <button 
+              onClick={handleWA}
+              disabled={isBelowMin}
+              className={`flex-1 text-white py-2.5 rounded font-bold flex items-center justify-center gap-2 transition-all text-sm ${
+                isBelowMin ? "bg-slate-700 text-slate-400 cursor-not-allowed opacity-60" : "bg-[#FF6B1A] hover:bg-opacity-90 cursor-pointer shadow-md"
+              }`}
+            >
+              <MessageCircle size={18} />
+              Order via WhatsApp
+            </button>
+            
+            <button 
+              onClick={handleEmail}
+              disabled={isBelowMin}
+              className={`flex-1 bg-transparent border py-2.5 rounded font-bold flex items-center justify-center gap-2 transition-all text-sm ${
+                isBelowMin 
+                  ? "border-slate-700 text-slate-500 cursor-not-allowed opacity-60" 
+                  : "border-[#CBD5E1] text-white hover:bg-[#1D4ED8] hover:border-[#1D4ED8] cursor-pointer shadow-md"
+              }`}
+            >
+              <Mail size={18} />
+              Order via Email
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
