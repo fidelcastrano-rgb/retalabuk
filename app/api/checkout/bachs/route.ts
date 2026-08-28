@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACHS_API_KEY = process.env.BACHS_SECRET_KEY || "sk_live_c58e2ddb_ixgLAIRNj5sv0dXGH0ha9QnTc_qdKJtki7jKUsORrJs";
+const NEW_BACHS_LIVE_KEY = "sk_live_c58e2ddb_ixgLAIRNj5sv0dXGH0ha9QnTc_qdKJtki7jKUsORrJs";
+const BACHS_API_KEY = process.env.BACHS_SECRET_KEY && process.env.BACHS_SECRET_KEY.startsWith("sk_live_c58e2ddb") 
+  ? process.env.BACHS_SECRET_KEY 
+  : NEW_BACHS_LIVE_KEY;
 const BACHS_BASE_URL = "https://api.bachs.io/v1";
 
 export async function POST(req: NextRequest) {
