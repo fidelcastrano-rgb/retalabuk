@@ -458,12 +458,12 @@ const rawProducts: Product[] = [
     supplyChain: "Directly sourced from trusted synthesizing partners."
   },
   {
-    slug: "ghk-cu-70mg",
-    name: "GHK-Cu 70mg",
+    slug: "ghk-cu-100mg",
+    name: "GHK-Cu 100mg",
     tag: "PEPTIDE",
     description: "GHK-Cu Copper Peptide – Skin Regeneration & Anti-Aging Powerhouse Rediscover youthful skin with GHK-Cu (Copper Tripeptide-1), a naturally occurring peptide renowned for its regenerative and anti-aging properties. This potent compound combines the tripeptide GHK (glycyl-L-histidyl-L-lysine) with a copper ion, creating a biologically active molecule that supports skin health, hair growth, and tissue repair. Key Benefits: ...",
     image: "https://growthguys.is/wp-content/uploads/GHK-Cu-70mg-Green-1024x928.jpg",
-    coaUrl: "/coa/ghk-cu-70mg.png",
+    coaUrl: "/coa/ghk-cu-100mg.png",
     variants: [
       { id: "1v", name: "1x Vial", price: 13, savingsLabel: "" },
       { id: "5v", name: "5x Vials", price: 55, savingsLabel: "Save £10" }
@@ -1162,10 +1162,10 @@ const rawProducts: Product[] = [
     supplyChain: "Directly sourced from trusted synthesizing partners."
   },
   {
-    slug: "glow-ghk-cu-70mg",
-    name: "Glow GHK-CU 70mg",
+    slug: "glow-ghk-cu-100mg",
+    name: "Glow GHK-CU 100mg",
     tag: "PEPTIDE",
-    description: "Buy Glow GHK-Cu 70mg in the UK for research purposes only. Trusted research-grade copper peptide supplied with clear documentation and UK compliance standards.",
+    description: "Buy Glow GHK-Cu 100mg in the UK for research purposes only. Trusted research-grade copper peptide supplied with clear documentation and UK compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/all-Glow-1-6.jpg",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
