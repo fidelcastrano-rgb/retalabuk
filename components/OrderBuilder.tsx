@@ -41,12 +41,13 @@ export function OrderBuilder() {
 
   if (totalItems === 0) return null;
 
-  const shippingFee = 9.99;
+  const shippingFee = appliedCoupon?.freeShipping ? 0 : 9.99;
   const finalPrice = finalSubtotal + shippingFee;
 
   const isCreditCard = formData.payment.toLowerCase().includes("credit") || formData.payment.toLowerCase().includes("card");
   const isCrypto = formData.payment.toLowerCase().includes("crypto");
   const isBelowMin = !isCrypto && !isCreditCard && finalSubtotal < 100;
+  const isAboveCardMax = isCreditCard && finalPrice > 350;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -236,7 +237,7 @@ export function OrderBuilder() {
             <div>
               <label className="text-xs text-[#CBD5E1] mb-1 block font-semibold text-white">Payment Method</label>
               <select name="payment" value={formData.payment} onChange={handleInputChange} className="w-full bg-[#1E293B] border border-[#3B82F6] rounded px-3 py-1.5 text-sm text-white font-medium focus:outline-none focus:border-[#60A5FA]">
-                <option value="Credit / Debit Card">💳 Credit / Debit Card (Bachs)</option>
+                <option value="Credit / Debit Card" disabled={finalPrice > 350}>💳 Credit / Debit Card {finalPrice > 350 ? '(Unavailable > £350)' : '(Bachs)'}</option>
                 <option value="Crypto (Bitcoin)">Bitcoin</option>
                 <option value="Crypto (USDT)">USDT</option>
                 <option value="Crypto (ETHER)">Ether</option>
@@ -322,6 +323,12 @@ export function OrderBuilder() {
             ⚠️ Minimum order is £100 for manual bank/transfer options. Select Credit Card / Crypto or add more items.
           </div>
         )}
+
+        {isAboveCardMax && (
+          <div className="bg-rose-500/10 text-rose-300 text-xs p-2 rounded border border-rose-500/30 text-center font-medium mb-3">
+            ⚠️ Credit Card payments are not accepted for orders above £350. Please select Crypto or Bank Transfer.
+          </div>
+        )}
         
         {discountAmount > 0 && (
           <>
@@ -348,7 +355,13 @@ export function OrderBuilder() {
         </div>
         <div className="flex justify-between items-center text-sm text-[#CBD5E1] mb-2 border-b border-[#475569] pb-2">
           <span>Shipping ({formData.shipping}):</span>
-          <span>£{shippingFee.toFixed(2)}</span>
+          <span>
+            {shippingFee === 0 ? (
+              <span className="text-[#10B981] font-bold">FREE</span>
+            ) : (
+              `£${shippingFee.toFixed(2)}`
+            )}
+          </span>
         </div>
         <div className="flex justify-between items-center font-bold font-heading mb-3 text-lg">
           <span>Total to Pay:</span>
@@ -360,7 +373,7 @@ export function OrderBuilder() {
           <div className="space-y-2">
             <button
               onClick={handleCardCheckout}
-              disabled={cardLoading}
+              disabled={cardLoading || isAboveCardMax}
               className="w-full bg-[#10B981] hover:bg-[#059669] text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all text-sm shadow-lg cursor-pointer disabled:opacity-50"
             >
               {cardLoading ? (

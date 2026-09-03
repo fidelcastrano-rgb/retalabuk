@@ -12,6 +12,7 @@ export interface Coupon {
   type: "percent" | "fixed";
   value: number;
   description: string;
+  freeShipping?: boolean;
 }
 
 export const VALID_COUPONS: Record<string, Coupon> = {
@@ -20,6 +21,7 @@ export const VALID_COUPONS: Record<string, Coupon> = {
   WELCOME10: { code: "WELCOME10", type: "percent", value: 10, description: "10% OFF Welcome Bonus" },
   RESEARCH15: { code: "RESEARCH15", type: "percent", value: 15, description: "15% OFF Research Special" },
   VIP20: { code: "VIP20", type: "percent", value: 20, description: "20% OFF VIP Partner Code" },
+  FREESHIP20: { code: "FREESHIP20", type: "percent", value: 20, description: "20% OFF + Free Shipping", freeShipping: true },
   RETA5: { code: "RETA5", type: "fixed", value: 5, description: "£5 OFF Instant Discount" },
 };
 
@@ -33,7 +35,7 @@ export function validateCoupon(inputCode: string): { valid: boolean; coupon?: Co
   }
   return { 
     valid: false, 
-    error: "Invalid coupon code. Try using RETA10 or WELCOME10" 
+    error: "Invalid coupon code. Try using FREESHIP20, RETA10 or WELCOME10" 
   };
 }
 
