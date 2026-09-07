@@ -2,10 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 
 const BACHS_API_BASE = "https://api.bachs.io/v1";
 
+function cleanApiKey(raw: string): string {
+  let cleaned = (raw || "").trim();
+  // Remove wrapping quotes
+  cleaned = cleaned.replace(/^["']+|["']+$/g, "").trim();
+  // Extract key matching sk_live_... or sk_test_... if prefixed with words
+  const match = cleaned.match(/(sk_(?:live|test)_[A-Za-z0-9_]+)/);
+  if (match) {
+    return match[1];
+  }
+  // Strip common label prefixes like "api key = ", "api_key: ", etc.
+  cleaned = cleaned.replace(/^(?:api[\s_-]?key\s*[:=]\s*|bearer\s+)/i, "").trim();
+  return cleaned;
+}
+
 function getBachsApiKey(): string {
-  const key =
+  const rawKey =
     process.env.BACHS_SECRET_KEY ||
-    "sk_live_af315513_UAL3cnI5yHxg_AheFOm1FCE64PVCK7GLgvqP5Ep2OXU";
+    "sk_live_c58e2ddb_ixgLAIRNj5sv0dXGH0ha9QnTc_qdKJtki7jKUsORrJs";
+
+  const key = cleanApiKey(rawKey);
+
   if (!key) {
     throw new Error("BACHS_SECRET_KEY is not configured");
   }
@@ -29,13 +46,19 @@ export async function POST(req: NextRequest) {
 
     const apiKey = getBachsApiKey();
 
-    // Determine return base URL
-    const origin =
+    // Determine return base URL (Bachs requires a publicly accessible URL, rejects localhost)
+    let origin =
       appUrl ||
       process.env.APP_URL ||
       req.headers.get("origin") ||
       req.headers.get("referer")?.split("/").slice(0, 3).join("/") ||
-      "http://localhost:3000";
+      "https://reta-lab.co.uk";
+
+    if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1")) {
+      origin = (process.env.APP_URL && !process.env.APP_URL.includes("localhost"))
+        ? process.env.APP_URL
+        : "https://reta-lab.co.uk";
+    }
 
     const totalGBP = parseFloat(pricing?.totalGBP || "0");
     if (isNaN(totalGBP) || totalGBP <= 0) {

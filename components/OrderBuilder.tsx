@@ -1,7 +1,21 @@
 "use client";
 
 import { useOrder } from "./OrderContext";
-import { X, Minus, Plus, MessageCircle, Mail, ChevronDown, ChevronUp, Tag, Sparkles } from "lucide-react";
+import { 
+  X, 
+  Minus, 
+  Plus, 
+  MessageCircle, 
+  Mail, 
+  ChevronDown, 
+  ChevronUp, 
+  Tag, 
+  Sparkles, 
+  CreditCard, 
+  ShieldCheck, 
+  AlertCircle, 
+  Loader2 
+} from "lucide-react";
 import { useState } from "react";
 
 export function OrderBuilder() {
@@ -27,6 +41,8 @@ export function OrderBuilder() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; text: string } | null>(null);
+  const [cardLoading, setCardLoading] = useState(false);
+  const [cardError, setCardError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -34,11 +50,12 @@ export function OrderBuilder() {
     phone: "",
     address: "",
     shipping: "UK",
-    payment: "Crypto (USDT)"
+    payment: "Credit Card"
   });
 
   if (totalItems === 0) return null;
 
+  const isCreditCard = formData.payment === "Credit Card";
   const isCrypto = formData.payment.toLowerCase().includes("crypto") ||
                    formData.payment.toLowerCase().includes("usdt") ||
                    formData.payment.toLowerCase().includes("bitcoin") ||
@@ -51,10 +68,14 @@ export function OrderBuilder() {
   const shippingFee = appliedCoupon?.freeShipping ? 0 : 9.99;
   const finalPrice = subtotalAfterCrypto + shippingFee;
 
-  const isBelowMin = !isCrypto && finalSubtotal < 100;
+  // Maximum card transaction limit is £350
+  const isCardAboveMax = isCreditCard && finalPrice > 350;
+  // Minimum £100 only applies to manual alternative options (Bank Transfer/Skrill)
+  const isBelowMin = !isCrypto && !isCreditCard && finalSubtotal < 100;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    if (cardError) setCardError(null);
   };
 
   const handleApplyCoupon = (e: React.FormEvent) => {
@@ -88,14 +109,139 @@ export function OrderBuilder() {
     return msg;
   };
 
+  const dispatchOrderNotification = (channel: string) => {
+    if (!formData.name?.trim() && !formData.email?.trim()) return;
+    const ref = `RETA-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Date.now().toString().slice(-4)}`;
+    fetch("/api/checkout/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        reference: ref,
+        customer: {
+          name: formData.name.trim() || "Customer",
+          email: formData.email.trim() || "",
+          phone: formData.phone.trim() || "",
+          address: formData.address.trim() || "",
+        },
+        items: items.map(i => ({
+          name: i.name,
+          variant: i.variant,
+          qty: i.qty,
+          price: i.price,
+        })),
+        pricing: {
+          totalGBP: finalPrice.toFixed(2),
+          subtotalGBP: subtotalPrice.toFixed(2),
+          cryptoDiscountGBP: cryptoDiscountAmount > 0 ? cryptoDiscountAmount.toFixed(2) : undefined,
+          discountGBP: discountAmount > 0 ? discountAmount.toFixed(2) : undefined,
+          couponDiscountGBP: couponDiscountAmount > 0 ? couponDiscountAmount.toFixed(2) : undefined,
+          shippingGBP: shippingFee.toFixed(2),
+        },
+        paymentMethod: `${formData.payment} (${channel})`,
+        shipping: formData.shipping,
+      }),
+    }).catch(err => console.error("Error dispatching order notification:", err));
+  };
+
   const handleWA = () => {
+    dispatchOrderNotification("WhatsApp Order");
     const text = encodeURIComponent(generateMessage());
     window.open(`https://wa.me/${whatsappNumber}?text=${text}`, "_blank");
   };
 
   const handleEmail = () => {
+    dispatchOrderNotification("Direct Email Order");
     const text = encodeURIComponent(generateMessage());
     window.open(`mailto:sales@reta-lab.co.uk?subject=New Order Enquiry&body=${text}`);
+  };
+
+  const handleCardCheckout = async () => {
+    setCardError(null);
+
+    if (!formData.name.trim()) {
+      setCardError("Please enter your full name for delivery.");
+      return;
+    }
+    if (!formData.email.trim() || !formData.email.includes("@")) {
+      setCardError("Please enter a valid email address for your payment receipt.");
+      return;
+    }
+    if (!formData.address.trim()) {
+      setCardError("Please enter your shipping address.");
+      return;
+    }
+    if (isCardAboveMax) {
+      setCardError("Card payments are limited to £350 maximum. Please select Crypto (10% OFF) or Bank Transfer.");
+      return;
+    }
+
+    try {
+      setCardLoading(true);
+
+      const payload = {
+        customer: {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone ? formData.phone.trim() : undefined,
+        },
+        shipping: {
+          region: formData.shipping,
+          address: formData.address.trim(),
+        },
+        pricing: {
+          totalGBP: finalPrice.toFixed(2),
+          subtotalGBP: subtotalAfterCrypto.toFixed(2),
+          shippingGBP: shippingFee.toFixed(2),
+        },
+        items: items.map(i => ({
+          name: i.name,
+          variant: i.variant,
+          qty: i.qty,
+          price: i.price,
+        })),
+        appUrl: typeof window !== "undefined" ? window.location.origin : undefined,
+      };
+
+      const res = await fetch("/api/checkout/bachs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.checkout_url) {
+        throw new Error(data.error || "Card checkout failed. Please verify your details or try again.");
+      }
+
+      // Save order snapshot locally so the return page can recover details even before webhooks
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(
+            "reta_last_order",
+            JSON.stringify({
+              checkout_id: data.checkout_id,
+              reference: data.reference,
+              customer: formData,
+              items,
+              totalGBP: finalPrice.toFixed(2),
+              totalUSD: data.totalUSD,
+              shipping: formData.shipping,
+              createdAt: new Date().toISOString(),
+            })
+          );
+        } catch (e) {
+          console.warn("Could not write order backup to localStorage", e);
+        }
+      }
+
+      // Redirect user directly to Bachs secure hosted card payment page
+      window.location.href = data.checkout_url;
+    } catch (err: any) {
+      console.error("Card checkout error:", err);
+      setCardError(err.message || "An unexpected error occurred. Please try again.");
+      setCardLoading(false);
+    }
   };
 
   if (isMinimized) {
@@ -103,6 +249,11 @@ export function OrderBuilder() {
       <div className="fixed bottom-6 right-6 z-50 bg-[#1D4ED8] text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between gap-3 cursor-pointer hover:bg-opacity-90 transition-all font-heading" onClick={() => setIsMinimized(false)}>
         <div className="flex items-center gap-2">
           <span className="font-bold">Your Order ({totalItems} items - £{finalPrice.toFixed(2)})</span>
+          {isCreditCard && (
+            <span className="bg-[#10B981] text-[10px] px-2 py-0.5 rounded font-sans font-bold uppercase tracking-wider text-white flex items-center gap-1">
+              <CreditCard size={11} /> Card Ready
+            </span>
+          )}
           {isCrypto && (
             <span className="bg-[#10B981] text-[10px] px-2 py-0.5 rounded font-sans font-bold uppercase tracking-wider text-white">
               10% Crypto OFF
@@ -202,9 +353,11 @@ export function OrderBuilder() {
             <div>
               <label className="text-xs text-[#CBD5E1] mb-1 block font-semibold text-white flex items-center justify-between">
                 <span>Payment Method</span>
+                {isCreditCard && <span className="text-[#10B981] text-[10px] font-bold">Instant SSL</span>}
                 {isCrypto && <span className="text-[#10B981] text-[10px] font-bold">10% OFF</span>}
               </label>
               <select name="payment" value={formData.payment} onChange={handleInputChange} className="w-full bg-[#1E293B] border border-[#3B82F6] rounded px-3 py-1.5 text-sm text-white font-medium focus:outline-none focus:border-[#60A5FA]">
+                <option value="Credit Card">💳 Credit / Debit Card (Visa, Mastercard, Apple Pay)</option>
                 <option value="Crypto (USDT)">🪙 USDT (TRC20 / ERC20) — 10% OFF</option>
                 <option value="Crypto (Bitcoin)">🪙 Bitcoin (BTC) — 10% OFF</option>
                 <option value="Crypto (ETHER)">🪙 Ethereum (ETH) — 10% OFF</option>
@@ -214,8 +367,33 @@ export function OrderBuilder() {
             </div>
           </div>
 
+          {/* Credit Card Processing Banner */}
+          {isCreditCard && (
+            <div className="mt-1">
+              {isCardAboveMax ? (
+                <div className="bg-amber-500/15 border border-amber-500/40 rounded-lg p-2.5 text-xs text-amber-200 flex items-start gap-2">
+                  <AlertCircle className="text-amber-400 shrink-0 mt-0.5" size={15} />
+                  <div>
+                    <span className="font-bold text-amber-300 block">Card Payment Limit: £350</span>
+                    <span className="text-[11px] text-[#CBD5E1] block mt-0.5">
+                      Card gateway limit is £350. Please switch payment to <strong>Crypto (10% OFF)</strong> or <strong>Bank Transfer</strong> for larger orders.
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-[#10B981]/10 border border-[#10B981]/30 rounded-lg p-2.5 text-xs text-[#A7F3D0] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={16} className="text-[#10B981] shrink-0" />
+                    <span>Visa, Mastercard & Apple Pay accepted</span>
+                  </div>
+                  <span className="text-[10px] bg-[#10B981]/20 text-[#10B981] px-1.5 py-0.5 rounded font-mono font-bold">256-BIT SSL</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Crypto Discount Notification Banner */}
-          {isCrypto ? (
+          {isCrypto && (
             <div className="bg-[#10B981]/15 border border-[#10B981]/40 rounded-lg p-2.5 text-xs text-[#A7F3D0] flex items-center gap-2">
               <Sparkles size={16} className="shrink-0 text-[#10B981]" />
               <div>
@@ -223,10 +401,12 @@ export function OrderBuilder() {
                 <span className="block text-[11px] text-[#CBD5E1]">You save £{cryptoDiscountAmount.toFixed(2)} on your order by paying with crypto.</span>
               </div>
             </div>
-          ) : (
+          )}
+
+          {!isCrypto && !isCreditCard && (
             <div className="bg-[#1E293B] border border-[#334155] rounded-lg p-2 text-[11px] text-[#94A3B8] flex items-center gap-1.5">
               <span>💡</span>
-              <span>Tip: Pay with any <strong>Crypto</strong> option to get an automatic <strong>10% discount</strong>!</span>
+              <span>Tip: Pay with <strong>Credit Card</strong> for instant checkout, or <strong>Crypto</strong> for <strong>10% discount</strong>!</span>
             </div>
           )}
 
@@ -330,31 +510,76 @@ export function OrderBuilder() {
           <span className="text-[#10B981]">£{finalPrice.toFixed(2)}</span>
         </div>
 
-        <div className="flex gap-2">
-          <button 
-            onClick={handleWA}
-            disabled={isBelowMin}
-            className={`flex-1 text-white py-2.5 rounded font-bold flex items-center justify-center gap-2 transition-all text-sm ${
-              isBelowMin ? "bg-slate-700 text-slate-400 cursor-not-allowed opacity-60" : "bg-[#FF6B1A] hover:bg-opacity-90 cursor-pointer shadow-md"
-            }`}
-          >
-            <MessageCircle size={18} />
-            Order via WhatsApp
-          </button>
-          
-          <button 
-            onClick={handleEmail}
-            disabled={isBelowMin}
-            className={`flex-1 bg-transparent border py-2.5 rounded font-bold flex items-center justify-center gap-2 transition-all text-sm ${
-              isBelowMin 
-                ? "border-slate-700 text-slate-500 cursor-not-allowed opacity-60" 
-                : "border-[#CBD5E1] text-white hover:bg-[#1D4ED8] hover:border-[#1D4ED8] cursor-pointer shadow-md"
-            }`}
-          >
-            <Mail size={18} />
-            Order via Email
-          </button>
-        </div>
+        {cardError && (
+          <div className="bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs p-2.5 rounded-lg text-center mb-2.5">
+            {cardError}
+          </div>
+        )}
+
+        {isCreditCard ? (
+          <div>
+            {isCardAboveMax ? (
+              <div className="bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs p-2.5 rounded-lg text-center font-medium mb-2.5">
+                ⚠️ Total exceeds £350 card limit. Please select <strong>Crypto (10% OFF)</strong> or <strong>Bank Transfer</strong>.
+              </div>
+            ) : (
+              <button 
+                onClick={handleCardCheckout}
+                disabled={cardLoading}
+                className="w-full bg-[#10B981] hover:bg-[#059669] text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all text-sm shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed mb-2 font-heading"
+              >
+                {cardLoading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>Connecting to Secure Card Gateway...</span>
+                  </>
+                ) : (
+                  <>
+                    <CreditCard size={18} />
+                    <span>Pay with Credit Card (£{finalPrice.toFixed(2)})</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            <div className="flex items-center justify-center gap-3 pt-1 text-[11px] text-[#94A3B8]">
+              <span>Or order manually:</span>
+              <button onClick={handleWA} className="text-[#FF6B1A] hover:underline cursor-pointer flex items-center gap-1 font-medium">
+                <MessageCircle size={13} /> WhatsApp
+              </button>
+              <span>•</span>
+              <button onClick={handleEmail} className="text-[#CBD5E1] hover:underline cursor-pointer flex items-center gap-1 font-medium">
+                <Mail size={13} /> Email
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <button 
+              onClick={handleWA}
+              disabled={isBelowMin}
+              className={`flex-1 text-white py-2.5 rounded font-bold flex items-center justify-center gap-2 transition-all text-sm ${
+                isBelowMin ? "bg-slate-700 text-slate-400 cursor-not-allowed opacity-60" : "bg-[#FF6B1A] hover:bg-opacity-90 cursor-pointer shadow-md"
+              }`}
+            >
+              <MessageCircle size={18} />
+              Order via WhatsApp
+            </button>
+            
+            <button 
+              onClick={handleEmail}
+              disabled={isBelowMin}
+              className={`flex-1 bg-transparent border py-2.5 rounded font-bold flex items-center justify-center gap-2 transition-all text-sm ${
+                isBelowMin 
+                  ? "border-slate-700 text-slate-500 cursor-not-allowed opacity-60" 
+                  : "border-[#CBD5E1] text-white hover:bg-[#1D4ED8] hover:border-[#1D4ED8] cursor-pointer shadow-md"
+              }`}
+            >
+              <Mail size={18} />
+              Order via Email
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

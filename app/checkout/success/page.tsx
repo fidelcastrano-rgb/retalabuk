@@ -56,6 +56,7 @@ function SuccessContent() {
           body: JSON.stringify({
             session,
             reference,
+            localOrder,
           }),
         });
         if (res.ok) {

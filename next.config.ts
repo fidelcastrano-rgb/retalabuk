@@ -33,6 +33,20 @@ const nextConfig: NextConfig = {
     ],
   },
   transpilePackages: ['motion'],
+  async redirects() {
+    return [
+      {
+        source: '/products/tirzepatide-15mg',
+        destination: '/products/tirzepatide-10mg',
+        permanent: true,
+      },
+      {
+        source: '/products/tirzepatide',
+        destination: '/products/tirzepatide-10mg',
+        permanent: true,
+      },
+    ];
+  },
   webpack: (config, {dev}) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.
     // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
