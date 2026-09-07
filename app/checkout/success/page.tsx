@@ -20,6 +20,7 @@ function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const refFromUrl = searchParams.get("ref");
+  const methodParam = searchParams.get("method"); // "crypto", "bank", "direct"
   const { clearOrder } = useOrder();
 
   const [loading, setLoading] = useState(true);
@@ -77,6 +78,7 @@ function SuccessContent() {
       const validSessionId =
         sessionId && sessionId !== "{CHECKOUT_SESSION_ID}" ? sessionId : null;
 
+      // 1. If it's a card order via Bachs gateway
       if (validSessionId) {
         try {
           const res = await fetch(`/api/checkout/bachs?session_id=${encodeURIComponent(validSessionId)}`);
@@ -92,10 +94,10 @@ function SuccessContent() {
         }
       }
 
-      // Fallback to local order details if session retrieval was not possible
-      if (localOrder) {
+      // 2. If it's a manual order (crypto/bank/direct) or fallback
+      if (localOrder && !validSessionId) {
         const simulatedSession = {
-          checkout_id: localOrder.checkout_id || validSessionId || "CH_MANUAL",
+          checkout_id: localOrder.checkout_id || "CH_MANUAL",
           amount: localOrder.totalUSD || "0.00",
           currency: "USD",
           customer: {
@@ -106,7 +108,14 @@ function SuccessContent() {
           status: "completed",
         };
         setSessionData(simulatedSession);
-        await triggerEmailNotification(simulatedSession, refFromUrl || localOrder.reference);
+        
+        // Only trigger email if methodParam is NOT provided. 
+        // For methodParam orders, we already sent the email synchronously in checkout/page.tsx.
+        if (!methodParam) {
+           await triggerEmailNotification(simulatedSession, refFromUrl || localOrder.reference);
+        } else {
+           setEmailStatus("sent"); // Already dispatched in the previous step
+        }
       }
 
       setLoading(false);
@@ -114,7 +123,7 @@ function SuccessContent() {
 
     fetchSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId, refFromUrl]);
+  }, [sessionId, refFromUrl, methodParam]);
 
   const orderReference =
     refFromUrl ||
@@ -132,8 +141,24 @@ function SuccessContent() {
     localOrder?.customer?.email ||
     "";
 
-  const displayGBP = localOrder?.totalGBP;
-  const displayUSD = sessionData?.amount || localOrder?.totalUSD;
+  // For non-card methods, pricing is in pricing object
+  const displayGBP = localOrder?.pricing?.totalGBP || localOrder?.totalGBP;
+  const displayUSD = sessionData?.amount && sessionData.amount !== "0.00" ? sessionData.amount : localOrder?.totalUSD;
+
+  // Determine messaging based on method
+  let headerText = "Thank You for Your Order";
+  let subText = `Your payment was successfully processed via Bachs Secure Gateway. A receipt has been issued to <strong class="text-white">${customerEmail || "your email"}</strong>.`;
+  
+  if (methodParam === "crypto") {
+    headerText = "Order Placed Successfully";
+    subText = `Your cryptocurrency order has been logged. Wallet transfer instructions have been sent to <strong class="text-white">${customerEmail || "your email"}</strong>. Your order will dispatch as soon as the transfer is verified on the blockchain.`;
+  } else if (methodParam === "bank") {
+    headerText = "Order Received & Invoice Sent";
+    subText = `Your order has been recorded. Our UK bank transfer details have been sent to <strong class="text-white">${customerEmail || "your email"}</strong>. Your order will dispatch immediately after funds clear.`;
+  } else if (methodParam === "direct") {
+    headerText = "Inquiry Received";
+    subText = `Your direct institutional / custom order inquiry has been sent to our lab support team. We will contact <strong class="text-white">${customerEmail || "your email"}</strong> shortly to finalize arrangements.`;
+  }
 
   return (
     <div className="min-h-screen bg-[#070C14] text-white flex flex-col items-center justify-center p-4 sm:p-6 font-sans">
@@ -147,14 +172,15 @@ function SuccessContent() {
             <CheckCircle2 size={36} />
           </div>
           <span className="text-xs uppercase tracking-widest text-[#10B981] font-bold">
-            Payment Verified & Approved
+            {methodParam ? "Order Placed & Logged" : "Payment Verified & Approved"}
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold font-heading text-white mt-1">
-            Thank You for Your Order
+            {headerText}
           </h1>
-          <p className="text-sm text-[#94A3B8] mt-2 max-w-md">
-            Your payment was successfully processed via Bachs Secure Gateway. A receipt has been issued to <strong className="text-white">{customerEmail || "your email"}</strong>.
-          </p>
+          <p 
+            className="text-sm text-[#94A3B8] mt-2 max-w-md"
+            dangerouslySetInnerHTML={{ __html: subText }}
+          />
         </div>
 
         {/* Reference and Details Box */}
@@ -174,19 +200,23 @@ function SuccessContent() {
           <div className="flex items-center justify-between pb-3 border-b border-[#334155]">
             <span className="text-[#94A3B8]">Payment Method:</span>
             <span className="flex items-center gap-1.5 font-medium text-white">
-              <ShieldCheck size={16} className="text-[#10B981]" /> Confirmed Order
+              <ShieldCheck size={16} className="text-[#10B981]" />
+              {methodParam === "crypto" ? "Cryptocurrency (Pending)" : 
+               methodParam === "bank" ? "Bank Transfer (Pending)" : 
+               methodParam === "direct" ? "Direct Inquiry" : 
+               "Confirmed Card Order"}
             </span>
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-[#94A3B8]">Amount Paid:</span>
+            <span className="text-[#94A3B8]">Amount Due:</span>
             <div className="text-right">
               {displayGBP && (
                 <span className="font-bold text-[#10B981] text-lg">
                   £{displayGBP}
                 </span>
               )}
-              {displayUSD && (
+              {displayUSD && !methodParam && (
                 <span className="text-xs text-[#94A3B8] block">
                   (${displayUSD} USD billed)
                 </span>
