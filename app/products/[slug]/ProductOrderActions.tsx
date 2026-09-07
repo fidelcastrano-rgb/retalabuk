@@ -96,7 +96,7 @@ export function ProductOrderActions({ product }: { product: Product }) {
         <p className="text-xs text-center text-[#475569] mt-2 leading-relaxed">
           <strong>Note:</strong> Shipping fee is £18 (UK) or £30 (International).<br/>
           Orders under £100 must be paid via <strong>Crypto only</strong>.<br/>
-          <em>Crypto is the best and preferred payment option for those who want to be anonymous.</em>
+          <em>Crypto is the best and preferred payment option for those who want to be anonymous (Get an extra 10% discount on all crypto orders).</em>
         </p>
       </div>
     </div>

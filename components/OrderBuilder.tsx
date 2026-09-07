@@ -1,7 +1,7 @@
 "use client";
 
 import { useOrder } from "./OrderContext";
-import { X, Minus, Plus, MessageCircle, Mail, ChevronDown, ChevronUp, Tag, CreditCard, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
+import { X, Minus, Plus, MessageCircle, Mail, ChevronDown, ChevronUp, Tag, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 export function OrderBuilder() {
@@ -27,8 +27,6 @@ export function OrderBuilder() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; text: string } | null>(null);
-  const [cardLoading, setCardLoading] = useState(false);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -36,17 +34,24 @@ export function OrderBuilder() {
     phone: "",
     address: "",
     shipping: "UK",
-    payment: "Revolut"
+    payment: "Crypto (USDT)"
   });
 
   if (totalItems === 0) return null;
 
-  const shippingFee = appliedCoupon?.freeShipping ? 0 : 9.99;
-  const finalPrice = finalSubtotal + shippingFee;
+  const isCrypto = formData.payment.toLowerCase().includes("crypto") ||
+                   formData.payment.toLowerCase().includes("usdt") ||
+                   formData.payment.toLowerCase().includes("bitcoin") ||
+                   formData.payment.toLowerCase().includes("ether");
 
-  const isRevolut = formData.payment === "Revolut";
-  const isCrypto = formData.payment.toLowerCase().includes("crypto");
-  const isBelowMin = !isCrypto && !isRevolut && finalSubtotal < 100;
+  // 10% discount for any crypto payment method
+  const cryptoDiscountAmount = isCrypto ? Number((finalSubtotal * 0.10).toFixed(2)) : 0;
+  const subtotalAfterCrypto = Math.max(0, finalSubtotal - cryptoDiscountAmount);
+
+  const shippingFee = appliedCoupon?.freeShipping ? 0 : 9.99;
+  const finalPrice = subtotalAfterCrypto + shippingFee;
+
+  const isBelowMin = !isCrypto && finalSubtotal < 100;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -76,7 +81,10 @@ export function OrderBuilder() {
     if (appliedCoupon && couponDiscountAmount > 0) {
       msg += `Coupon Code (${appliedCoupon.code}): -£${couponDiscountAmount.toFixed(2)}\n`;
     }
-    msg += `Final Subtotal: £${finalSubtotal.toFixed(2)}\nShipping Fee (${formData.shipping}): £${shippingFee.toFixed(2)}\nTotal to Pay: £${finalPrice.toFixed(2)}\n\nCustomer Details:\nName: ${formData.name || "Not provided"}\nEmail: ${formData.email || "Not provided"}\nPhone: ${formData.phone || "Not provided"}\nShipping Option: ${formData.shipping}\nAddress: ${formData.address ? formData.address.replace(/\n/g, ", ") : "Not provided"}\nPayment Method: ${formData.payment}\n\nPlease confirm receipt of this order.`;
+    if (isCrypto && cryptoDiscountAmount > 0) {
+      msg += `Crypto Payment Discount (10% OFF): -£${cryptoDiscountAmount.toFixed(2)}\n`;
+    }
+    msg += `Final Subtotal: £${subtotalAfterCrypto.toFixed(2)}\nShipping Fee (${formData.shipping}): £${shippingFee.toFixed(2)}\nTotal to Pay: £${finalPrice.toFixed(2)}\n\nCustomer Details:\nName: ${formData.name || "Not provided"}\nEmail: ${formData.email || "Not provided"}\nPhone: ${formData.phone || "Not provided"}\nShipping Option: ${formData.shipping}\nAddress: ${formData.address ? formData.address.replace(/\n/g, ", ") : "Not provided"}\nPayment Method: ${formData.payment}${isCrypto ? " (10% Crypto Discount Applied)" : ""}\n\nPlease confirm receipt of this order.`;
     return msg;
   };
 
@@ -92,68 +100,91 @@ export function OrderBuilder() {
 
   if (isMinimized) {
     return (
-      <div className="fixed bottom-6 right-6 z-50 bg-[#1D4ED8] text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between gap-4 cursor-pointer hover:bg-opacity-90 transition-all font-heading" onClick={() => setIsMinimized(false)}>
-        <span className="font-bold">Your Order ({totalItems} items - £{finalPrice.toFixed(2)})</span>
+      <div className="fixed bottom-6 right-6 z-50 bg-[#1D4ED8] text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between gap-3 cursor-pointer hover:bg-opacity-90 transition-all font-heading" onClick={() => setIsMinimized(false)}>
+        <div className="flex items-center gap-2">
+          <span className="font-bold">Your Order ({totalItems} items - £{finalPrice.toFixed(2)})</span>
+          {isCrypto && (
+            <span className="bg-[#10B981] text-[10px] px-2 py-0.5 rounded font-sans font-bold uppercase tracking-wider text-white">
+              10% Crypto OFF
+            </span>
+          )}
+        </div>
         <ChevronUp size={20} />
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-3rem)] bg-[#0F172A] border-t-4 border-[#FF6B1A] rounded-t-lg rounded-b shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden transition-transform transform translate-y-0 text-white flex flex-col max-h-[85vh]">
-      <div className="p-3 bg-[#1D4ED8] flex justify-between items-center text-white font-heading">
-        <span className="font-bold">Your Order ({totalItems})</span>
+    <div className="fixed bottom-4 right-4 z-50 w-96 max-w-[calc(100vw-2rem)] bg-[#0F172A] border border-[#334155] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] text-white">
+      {/* Header */}
+      <div className="bg-[#1E293B] p-3 border-b border-[#334155] flex justify-between items-center">
+        <div>
+          <h3 className="font-bold font-heading text-sm">Wholesale Order Builder</h3>
+          <span className="text-xs text-[#94A3B8]">{totalItems} items selected</span>
+        </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setIsMinimized(true)} className="text-white hover:text-[#CBD5E1] transition-colors cursor-pointer" aria-label="Minimize Order">
-            <ChevronDown size={20} />
+          <button onClick={() => setIsMinimized(true)} className="text-[#94A3B8] hover:text-white p-1 cursor-pointer">
+            <ChevronDown size={18} />
           </button>
-          <button onClick={clearOrder} className="text-white hover:text-[#CBD5E1] transition-colors cursor-pointer" aria-label="Clear Order">
-            <X size={20} />
+          <button onClick={clearOrder} className="text-[#94A3B8] hover:text-rose-400 p-1 text-xs cursor-pointer">
+            Clear
           </button>
         </div>
       </div>
-      
-      <div className="p-3 flex-1 overflow-y-auto space-y-4 bg-[#0F172A]">
-        {/* Discount Motivation Message */}
-        <div className="bg-[#1D4ED8]/20 border border-[#1D4ED8]/50 rounded p-2 text-center text-xs font-medium text-[#EEF2F7] flex items-center justify-center gap-2">
-          <Tag size={14} className="text-[#FF6B1A]" />
-          <span>{discountMessage}</span>
-        </div>
 
-        {items.map((item) => {
+      {/* Discount banner */}
+      <div className="bg-[#1D4ED8]/20 border-b border-[#1D4ED8]/30 px-3 py-1.5 text-xs text-[#60A5FA] flex items-center justify-between">
+        <span>{discountMessage}</span>
+        {discountPercentage > 0 && <span className="font-bold">Save {discountPercentage}%</span>}
+      </div>
+
+      {/* Items list */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        {items.map(item => {
           const minQty = getMinQtyForVariant(item.variant);
           return (
-            <div key={item.key} className="flex justify-between items-start border-b border-[#475569] pb-3 text-sm">
-              <div className="flex-1">
-                <div className="font-medium text-white">{item.name}</div>
-                <div className="text-[#CBD5E1] text-xs mt-1">{item.variant}</div>
-                {minQty > 1 && (
-                  <div className="text-amber-400 text-[10px] font-bold mt-0.5">
-                    ⚠️ Min. Qty of {minQty} ({minQty * (item.variant.includes("5x") ? 5 : 1)} Vials) applies
-                  </div>
-                )}
-                <div className="font-bold mt-1 text-[#10B981]">£{(item.price * item.qty).toFixed(2)}</div>
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                <button onClick={() => removeItem(item.key)} className="text-[#FF6B1A] hover:text-white transition-colors cursor-pointer" aria-label="Remove item">
-                   <X size={16} />
+            <div key={item.key} className="bg-[#1E293B] p-2.5 rounded border border-[#334155] flex flex-col gap-2">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold">{item.name}</h4>
+                  <div className="text-xs text-[#94A3B8]">{item.variant}</div>
+                  <div className="text-xs text-[#10B981] font-mono">£{item.price.toFixed(2)} each</div>
+                </div>
+                <button onClick={() => removeItem(item.key)} className="text-[#94A3B8] hover:text-rose-400 p-1 cursor-pointer">
+                  <X size={14} />
                 </button>
-                <div className="flex items-center gap-2 bg-[#EEF2F7] text-[#0F172A] rounded px-2 py-0.5 text-xs">
-                  <button onClick={() => updateQuantity(item.key, item.qty - 1)} disabled={item.qty <= minQty} className="hover:text-[#FF6B1A] disabled:opacity-30 cursor-pointer"><Minus size={12} /></button>
-                  <span className="font-bold w-4 text-center">{item.qty}</span>
-                  <button onClick={() => updateQuantity(item.key, item.qty + 1)} className="hover:text-[#FF6B1A] cursor-pointer"><Plus size={12} /></button>
+              </div>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2 bg-[#0F172A] border border-[#334155] rounded px-2 py-0.5">
+                  <button 
+                    onClick={() => updateQuantity(item.key, item.qty - 1)}
+                    disabled={item.qty <= minQty}
+                    className="text-[#94A3B8] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <Minus size={12} />
+                  </button>
+                  <span className="text-xs font-mono font-bold w-6 text-center">{item.qty}</span>
+                  <button 
+                    onClick={() => updateQuantity(item.key, item.qty + 1)}
+                    className="text-[#94A3B8] hover:text-white cursor-pointer"
+                  >
+                    <Plus size={12} />
+                  </button>
+                </div>
+                <div className="text-sm font-bold font-mono">
+                  £{(item.price * item.qty).toFixed(2)}
                 </div>
               </div>
             </div>
           );
         })}
-        
-        {/* Checkout Form */}
-        <div className="pt-2 space-y-3">
-          <h3 className="font-heading font-bold text-[#EEF2F7] text-sm border-b border-[#475569] pb-1">Checkout Details</h3>
+
+        {/* Customer Details Form */}
+        <div className="border-t border-[#334155] pt-3 space-y-2">
+          <h4 className="text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">Delivery Details</h4>
           <div className="grid grid-cols-2 gap-2">
-            <input name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name" className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2563EB]" />
-            <input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="Phone" className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2563EB]" />
+            <input name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name" className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#2563EB]" />
+            <input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="Phone (Optional)" className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#2563EB]" />
           </div>
           <input name="email" type="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address" className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2563EB]" />
           <textarea name="address" value={formData.address} onChange={handleInputChange} placeholder="Shipping Address (Street, City, Postcode, Country)" rows={2} className="w-full bg-[#1E293B] border border-[#475569] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#2563EB] resize-none" />
@@ -169,37 +200,33 @@ export function OrderBuilder() {
               </select>
             </div>
             <div>
-              <label className="text-xs text-[#CBD5E1] mb-1 block font-semibold text-white">Payment Method</label>
+              <label className="text-xs text-[#CBD5E1] mb-1 block font-semibold text-white flex items-center justify-between">
+                <span>Payment Method</span>
+                {isCrypto && <span className="text-[#10B981] text-[10px] font-bold">10% OFF</span>}
+              </label>
               <select name="payment" value={formData.payment} onChange={handleInputChange} className="w-full bg-[#1E293B] border border-[#3B82F6] rounded px-3 py-1.5 text-sm text-white font-medium focus:outline-none focus:border-[#60A5FA]">
-                <option value="Revolut">Revolut Pay</option>
-                <option value="Crypto (Bitcoin)">Bitcoin</option>
-                <option value="Crypto (USDT)">USDT</option>
-                <option value="Crypto (ETHER)">Ether</option>
-                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Crypto (USDT)">🪙 USDT (TRC20 / ERC20) — 10% OFF</option>
+                <option value="Crypto (Bitcoin)">🪙 Bitcoin (BTC) — 10% OFF</option>
+                <option value="Crypto (ETHER)">🪙 Ethereum (ETH) — 10% OFF</option>
+                <option value="Bank Transfer">Bank Transfer (UK BACS)</option>
                 <option value="Skrill">Skrill</option>
               </select>
             </div>
           </div>
 
-          {/* Revolut Notice / Badge */}
-          {isRevolut && (
-            <div className="mt-3 bg-[#1E293B] border border-[#2563EB] rounded-lg p-3 text-sm text-[#E2E8F0] shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#2563EB]"></div>
-              <div className="flex items-start gap-2">
-                <ShieldCheck className="text-[#3B82F6] shrink-0 mt-0.5" size={16} />
-                <div>
-                  <p className="font-semibold text-white mb-1 flex items-center gap-1">
-                     Revolut Pay
-                  </p>
-                  <p className="text-[11px] text-[#94A3B8] leading-relaxed mb-2">
-                    Step 1: Submit your order via WhatsApp or Email below.<br/>
-                    Step 2: Pay instantly using our Revolut link.
-                  </p>
-                  <a href="https://revolut.me/srinivbpxv" target="_blank" rel="noopener noreferrer" className="inline-block bg-[#2563EB] text-white text-xs px-3 py-1.5 rounded font-bold hover:bg-[#1D4ED8] transition-colors">
-                    revolut.me/srinivbpxv
-                  </a>
-                </div>
+          {/* Crypto Discount Notification Banner */}
+          {isCrypto ? (
+            <div className="bg-[#10B981]/15 border border-[#10B981]/40 rounded-lg p-2.5 text-xs text-[#A7F3D0] flex items-center gap-2">
+              <Sparkles size={16} className="shrink-0 text-[#10B981]" />
+              <div>
+                <span className="font-bold text-[#10B981]">10% Crypto Discount Applied!</span>
+                <span className="block text-[11px] text-[#CBD5E1]">You save £{cryptoDiscountAmount.toFixed(2)} on your order by paying with crypto.</span>
               </div>
+            </div>
+          ) : (
+            <div className="bg-[#1E293B] border border-[#334155] rounded-lg p-2 text-[11px] text-[#94A3B8] flex items-center gap-1.5">
+              <span>💡</span>
+              <span>Tip: Pay with any <strong>Crypto</strong> option to get an automatic <strong>10% discount</strong>!</span>
             </div>
           )}
 
@@ -214,9 +241,9 @@ export function OrderBuilder() {
                   <span className="font-bold text-[#10B981]">{appliedCoupon.code}</span>
                   <span className="text-[#CBD5E1] ml-2">({appliedCoupon.description})</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleRemoveCoupon}
+                <button 
+                  type="button" 
+                  onClick={handleRemoveCoupon} 
                   className="text-xs text-rose-400 hover:text-rose-300 font-bold ml-2 underline cursor-pointer"
                 >
                   Remove
@@ -224,15 +251,15 @@ export function OrderBuilder() {
               </div>
             ) : (
               <form onSubmit={handleApplyCoupon} className="flex gap-2">
-                <input
-                  type="text"
-                  value={couponInput}
-                  onChange={(e) => setCouponInput(e.target.value)}
-                  placeholder="Enter code (e.g. RETA10)"
+                <input 
+                  type="text" 
+                  value={couponInput} 
+                  onChange={(e) => setCouponInput(e.target.value)} 
+                  placeholder="Enter code (e.g. RETA10)" 
                   className="flex-1 bg-[#1E293B] border border-[#475569] rounded px-3 py-1.5 text-xs text-white uppercase placeholder:normal-case focus:outline-none focus:border-[#2563EB]"
                 />
-                <button
-                  type="submit"
+                <button 
+                  type="submit" 
                   className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-3 py-1.5 rounded text-xs font-bold transition-colors cursor-pointer"
                 >
                   Apply
@@ -274,9 +301,19 @@ export function OrderBuilder() {
             <span>-£{couponDiscountAmount.toFixed(2)}</span>
           </div>
         )}
+
+        {isCrypto && cryptoDiscountAmount > 0 && (
+          <div className="flex justify-between items-center text-sm text-[#10B981] font-bold mb-1">
+            <span className="flex items-center gap-1.5">
+              <Sparkles size={13} className="shrink-0 text-[#10B981]" /> Crypto Discount (10%):
+            </span>
+            <span>-£{cryptoDiscountAmount.toFixed(2)}</span>
+          </div>
+        )}
+
         <div className="flex justify-between items-center text-sm text-[#CBD5E1] mb-1">
           <span>Subtotal:</span>
-          <span>£{finalSubtotal.toFixed(2)}</span>
+          <span>£{subtotalAfterCrypto.toFixed(2)}</span>
         </div>
         <div className="flex justify-between items-center text-sm text-[#CBD5E1] mb-2 border-b border-[#475569] pb-2">
           <span>Shipping ({formData.shipping}):</span>
@@ -292,7 +329,7 @@ export function OrderBuilder() {
           <span>Total to Pay:</span>
           <span className="text-[#10B981]">£{finalPrice.toFixed(2)}</span>
         </div>
-        
+
         <div className="flex gap-2">
           <button 
             onClick={handleWA}
