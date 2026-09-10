@@ -688,7 +688,7 @@ export default function CheckoutPage() {
                 className="mt-0.5 text-[#3B82F6] rounded focus:ring-0 cursor-pointer"
               />
               <label htmlFor="research-terms" className="cursor-pointer select-none leading-relaxed">
-                I acknowledge that all compounds purchased from RETA LAB UK are strictly intended for <strong className="text-white">in-vitro scientific laboratory research</strong> and analytical assay verification. Not for direct human or animal consumption.
+                I acknowledge that all compounds purchased from RETA LAB UK are intended for <strong className="text-white">human consumption</strong> and therapeutic use.
               </label>
             </div>
 

@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,6 +14,7 @@ export function Navbar() {
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Shop", href: "/products" },
+    { label: "Calculator", href: "/calculator" },
     { label: "About", href: "/about" },
     { label: "Research", href: "/blog" },
     { label: "COAs", href: "/coa" },

@@ -132,8 +132,8 @@ export default async function ProductPage({ params }: Props) {
 
                 <div className="mt-8 pt-8 border-t border-[#CBD5E1] grid grid-cols-2 gap-4">
                    <div className="border border-[#CBD5E1] border-l-4 border-l-[#FF6B1A] bg-white p-4 rounded text-sm text-[#475569]">
-                     <strong className="block text-[#0F172A] mb-1">How Ordering Works</strong>
-                     Add to builder, submit via WhatsApp or Email, receive custom invoice.
+                     <strong className="block text-[#0F172A] mb-1">Important Notice</strong>
+                     These products are intended for human consumption and therapeutic use.
                    </div>
                    <div className="border border-[#CBD5E1] border-l-4 border-l-[#10B981] bg-white p-4 rounded text-sm text-[#475569]">
                      <strong className="block text-[#0F172A] mb-1">Safety Protocol</strong>

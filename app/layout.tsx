@@ -6,6 +6,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { OrderBuilder } from '@/components/OrderBuilder';
+import { SalesNotification } from '@/components/SalesNotification';
 
 export const metadata: Metadata = {
   title: 'RETA LAB UK | UK\'s Most Trusted Research Peptide Wholesaler',
@@ -42,6 +43,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           </main>
           <WhatsAppFloat />
           <OrderBuilder />
+          <SalesNotification />
           <Footer />
         </OrderProvider>
       </body>

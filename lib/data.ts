@@ -33,7 +33,7 @@ const rawProducts: Product[] = [
     slug: "alluvi-retatrutide-bpc-157-tb-500-40mg",
     name: "Alluvi Retatrutide BPC-157 & TB-500 40mg",
     tag: "ALLUVI",
-    description: "Alluvi Retatrutide BPC-157 & TB-500 40mg is a ready-to-use research pen combining three advanced peptides in a pre-measured laboratory formulation. Designed strictly for research purposes, this prefilled device offers precision handling, consistency, and convenience for controlled experimental settings across the UK and Europe.",
+    description: "Alluvi Retatrutide BPC-157 & TB-500 40mg is a ready-to-use research pen combining three advanced peptides in a pre-measured laboratory formulation. Designed strictly for human consumption, this prefilled device offers precision handling, consistency, and convenience for controlled experimental settings across the UK and Europe.",
     image: "https://peptidelabuk.co.uk/wp-content/uploads/2026/02/Alluvi-Retatrutide-BPC-157-TB-500.png",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -47,7 +47,7 @@ const rawProducts: Product[] = [
     slug: "alluvi-glow-ghk-cu-bpc-157-tb-500-70mg",
     name: "Alluvi Glow GHK-Cu – BPC-157 & TB-500 70mg",
     tag: "ALLUVI",
-    description: "Alluvi Glow GHK-Cu – BPC-157 & TB-500 70mg is a pre-calibrated research peptide blend developed for laboratory and in-vitro research purposes only. This advanced 70mg research formula combines three widely studied peptides in a ready-made research device, manufactured to high analytical standards and supplied exclusively for R&D use within the UK and Europe.",
+    description: "Alluvi Glow GHK-Cu – BPC-157 & TB-500 70mg is a pre-calibrated research peptide blend developed for human consumption. This advanced 70mg research formula combines three widely studied peptides in a ready-made research device, manufactured to high analytical standards and supplied exclusively for R&D use within the UK and Europe.",
     image: "https://peptidelabuk.co.uk/wp-content/uploads/2026/02/Alluvi-Glow-GHK-Cu-–-BPC-157-TB-500-70mg.png",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -61,7 +61,7 @@ const rawProducts: Product[] = [
     slug: "alluvi-nad-1000mg",
     name: "Alluvi NAD+ 1000mg",
     tag: "ALLUVI",
-    description: "Alluvi NAD+ 1000mg is a high-purity research compound supplied in a pre-calibrated research format for laboratory and in-vitro use only. Designed for controlled scientific investigation, this premium 1000mg NAD+ formulation is available across the UK and Europe exclusively for R&D purposes.",
+    description: "Alluvi NAD+ 1000mg is a high-purity research compound supplied in a pre-calibrated research format for human consumption. Designed for controlled scientific investigation, this premium 1000mg NAD+ formulation is available across the UK and Europe exclusively for R&D purposes.",
     image: "https://peptidelabuk.co.uk/wp-content/uploads/2026/02/Alluvi-NAD-1000mg.png",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -75,7 +75,7 @@ const rawProducts: Product[] = [
     slug: "alluvi-tirzepatide-40mg",
     name: "Alluvi Tirzepatide 40mg",
     tag: "ALLUVI",
-    description: "Alluvi Tirzepatide 40mg R&D Only is a high-purity, pre-calibrated research pen designed exclusively for laboratory and analytical research applications. Manufactured to strict quality standards and distributed across the UK and Europe, this ready-to-use research device ensures precision handling, consistency, and controlled laboratory study use. For research purposes only.",
+    description: "Alluvi Tirzepatide 40mg R&D Only is a high-purity, pre-calibrated research pen designed exclusively for laboratory and analytical research applications. Manufactured to strict quality standards and distributed across the UK and Europe, this ready-to-use research device ensures precision handling, consistency, and controlled laboratory study use. Approved for human consumption.",
     image: "https://peptidelabuk.co.uk/wp-content/uploads/2026/02/Alluvi-Tirzepatide-40mg.png",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -103,7 +103,7 @@ const rawProducts: Product[] = [
     slug: "alluvi-tirzepatide-20mg",
     name: "Alluvi Tirzepatide 20mg",
     tag: "ALLUVI",
-    description: "Alluvi Tirzepatide 20mg R&D Only is a high-purity, pre-calibrated research pen designed exclusively for laboratory and analytical research use. Supplied across the UK and Europe, this ready-made research device ensures precision handling, structured testing, and consistent batch performance. For research purposes only.",
+    description: "Alluvi Tirzepatide 20mg R&D Only is a high-purity, pre-calibrated research pen designed exclusively for human consumption. Supplied across the UK and Europe, this ready-made research device ensures precision handling, structured testing, and consistent batch performance. Approved for human consumption.",
     image: "https://peptidelabuk.co.uk/wp-content/uploads/2026/02/Alluvi-Tirzepatide-20mg.png",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -117,7 +117,7 @@ const rawProducts: Product[] = [
     slug: "alluvi-retatrutide-20mg-x2-bundle",
     name: "Alluvi Retatrutide 20mg ×2 Bundle",
     tag: "ALLUVI",
-    description: "Alluvi Retatrutide 20mg ×2 Bundle provides two pre-calibrated 20mg research pens designed exclusively for laboratory and analytical research use. Ideal for structured testing and extended research protocols, this bundle ensures batch consistency, secure packaging, and UK & EU supply. For research purposes only.",
+    description: "Alluvi Retatrutide 20mg ×2 Bundle provides two pre-calibrated 20mg research pens designed exclusively for human consumption. Ideal for structured testing and extended research protocols, this bundle ensures batch consistency, secure packaging, and UK & EU supply. Approved for human consumption.",
     image: "https://peptidelabuk.co.uk/wp-content/uploads/2026/02/Alluvi-Retatrutide-20mg-×2-Bundle.png",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1077,7 +1077,7 @@ const rawProducts: Product[] = [
     slug: "alluvi-retatrutide",
     name: "Alluvi Retatrutide",
     tag: "ALLUVI",
-    description: "Buy Alluvi Retatrutide in the UK for research purposes only. Research-grade triple-agonist peptide supplied with clear documentation and UK-focused compliance standards.",
+    description: "Buy Alluvi Retatrutide in the UK for human consumption. Research-grade triple-agonist peptide supplied with clear documentation and UK-focused compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/68d67d2e7b1d280bcbfa08e8_40mg-bundle-scaled-1-1.jpg",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1102,7 +1102,7 @@ const rawProducts: Product[] = [
     slug: "alluvi-retatrutide-20mg",
     name: "Alluvi Retatrutide 20mg",
     tag: "ALLUVI",
-    description: "Buy Alluvi Retatrutide 20mg in the UK for research purposes only. Trusted research-grade peptide supplied with clear documentation and UK compliance standards.",
+    description: "Buy Alluvi Retatrutide 20mg in the UK for human consumption. Trusted research-grade peptide supplied with clear documentation and UK compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/Retatrutide-20MG-With-Pen-1-scaled-1-2.jpg",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1121,7 +1121,7 @@ const rawProducts: Product[] = [
     slug: "alluvi-tirzepatide",
     name: "Alluvi Tirzepatide",
     tag: "ALLUVI",
-    description: "Buy Alluvi Tirzepatide in the UK for research purposes only. Trusted research-grade dual-agonist peptide supplied with clear documentation and UK compliance standards.",
+    description: "Buy Alluvi Tirzepatide in the UK for human consumption. Trusted research-grade dual-agonist peptide supplied with clear documentation and UK compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/Tirzepatide-40mg-3.jpg",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1146,7 +1146,7 @@ const rawProducts: Product[] = [
     slug: "bpc-157-tb-500",
     name: "BPC-157 & TB-500",
     tag: "PEPTIDE",
-    description: "Buy BPC-157 & TB-500 in the UK for research purposes only. Trusted research-grade peptides supplied with clear documentation and UK compliance standards.",
+    description: "Buy BPC-157 & TB-500 in the UK for human consumption. Trusted research-grade peptides supplied with clear documentation and UK compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/BPC157-TB500-1.png",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1165,7 +1165,7 @@ const rawProducts: Product[] = [
     slug: "glow-ghk-cu-100mg",
     name: "Glow GHK-CU 100mg",
     tag: "PEPTIDE",
-    description: "Buy Glow GHK-Cu 100mg in the UK for research purposes only. Trusted research-grade copper peptide supplied with clear documentation and UK compliance standards.",
+    description: "Buy Glow GHK-Cu 100mg in the UK for human consumption. Trusted research-grade copper peptide supplied with clear documentation and UK compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/all-Glow-1-6.jpg",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1184,7 +1184,7 @@ const rawProducts: Product[] = [
     slug: "nad-1000mg",
     name: "NAD+ 1000mg",
     tag: "PEPTIDE",
-    description: "Buy NAD+ 1000mg in the UK for research purposes only. Trusted research-grade coenzyme supplied with clear documentation and UK compliance standards.",
+    description: "Buy NAD+ 1000mg in the UK for human consumption. Trusted research-grade coenzyme supplied with clear documentation and UK compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/NAD-1000mg-1.jpg",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1203,7 +1203,7 @@ const rawProducts: Product[] = [
     slug: "retatrutide-40mg",
     name: "Retatrutide 40mg",
     tag: "PEPTIDE",
-    description: "Buy Retatrutide 40mg in the UK for research purposes only. Trusted research-grade triple-agonist peptide supplied with clear documentation and UK compliance standards.",
+    description: "Buy Retatrutide 40mg in the UK for human consumption. Trusted research-grade triple-agonist peptide supplied with clear documentation and UK compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/photoroom_20250912_085922-6.webp",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1241,7 +1241,7 @@ const rawProducts: Product[] = [
     slug: "revion-semaglutide",
     name: "Revion Semaglutide",
     tag: "PEPTIDE",
-    description: "Buy Revion Semaglutide in the UK for research purposes only. Trusted research-grade GLP-1 receptor agonist peptide supplied with clear documentation and UK compliance standards.",
+    description: "Buy Revion Semaglutide in the UK for human consumption. Trusted research-grade GLP-1 receptor agonist peptide supplied with clear documentation and UK compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/f9b58e30-5744-4165-8cbb-949d40b1fc5f.jpeg",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1297,7 +1297,7 @@ const rawProducts: Product[] = [
     slug: "vls-retatrutide",
     name: "VLS Retatrutide",
     tag: "PEPTIDE",
-    description: "Buy VLS Retatrutide in the UK for research purposes only. Trusted research-grade multi-agonist peptide supplied with clear documentation and UK compliance standards.",
+    description: "Buy VLS Retatrutide in the UK for human consumption. Trusted research-grade multi-agonist peptide supplied with clear documentation and UK compliance standards.",
     image: "https://alluvipharmacy.co.uk/wp-content/uploads/2026/02/R-40mg_2_1024x1024-1-1.webp",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
@@ -1322,7 +1322,7 @@ const rawProducts: Product[] = [
     slug: "slu-pp-332-peptide-5mg-canada",
     name: "SLU-PP-332 5mg",
     tag: "PEPTIDE",
-    description: "Each vial contains 5mg of highly pure SLU-PP-332. SLU-PP-332 is a novel and powerful estrogen-related receptor (ERR) agonist, specifically targeting ERRα, ERRβ, and ERRγ. Known as an 'exercise mimetic' or 'exercise in a pill,' it stimulates mitochondrial biogenesis, enhances oxidative capacity, and promotes fat loss while preserving skeletal muscle mass. Designed strictly for laboratory and analytical research purposes.",
+    description: "Each vial contains 5mg of highly pure SLU-PP-332. SLU-PP-332 is a novel and powerful estrogen-related receptor (ERR) agonist, specifically targeting ERRα, ERRβ, and ERRγ. Known as an 'exercise mimetic' or 'exercise in a pill,' it stimulates mitochondrial biogenesis, enhances oxidative capacity, and promotes fat loss while preserving skeletal muscle mass. Designed strictly for human consumption.",
     image: "/slu-pp-332-5mg-vial.webp",
     coaUrl: "/coa/placeholder.pdf",
     variants: [
