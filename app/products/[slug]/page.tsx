@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { products } from '@/lib/data';
 import { ProductOrderActions } from './ProductOrderActions';
+import { generateReviewsForProduct } from '@/lib/reviews-generator';
+import { ProductReviews } from '@/components/ProductReviews';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -40,6 +42,8 @@ export default async function ProductPage({ params }: Props) {
   const product = products.find((p) => p.slug === resolvedParams.slug);
 
   if (!product) notFound();
+
+  const reviews = generateReviewsForProduct(product.slug, product.name);
 
   const structuredData = {
     "@context": "https://schema.org/",
@@ -167,6 +171,8 @@ export default async function ProductPage({ params }: Props) {
                <p className="text-[#475569]">{product.supplyChain}</p>
              </div>
            </div>
+           
+           <ProductReviews reviews={reviews} />
         </div>
       </div>
     </>
