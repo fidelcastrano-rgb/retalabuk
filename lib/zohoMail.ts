@@ -202,7 +202,7 @@ export function generateCustomerEmailHtml(data: OrderEmailPayload): string {
 
         <!-- Support Info -->
         <p style="margin: 0 0 8px 0; font-size: 13px; color: #64748b; line-height: 1.5;">
-          If you have any questions or require special delivery arrangements, reply to this email or reach us on WhatsApp at <strong>+44 7723 217812</strong>.
+          If you have any questions or require special delivery arrangements, reply to this email or reach us on WhatsApp at <strong>+447727171512</strong>.
         </p>
       </div>
 

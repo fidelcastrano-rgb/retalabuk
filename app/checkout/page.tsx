@@ -12,6 +12,7 @@ import {
   Coins, 
   Building2, 
   Truck, 
+  Check,
   CheckCircle2, 
   AlertCircle, 
   Loader2, 
@@ -23,7 +24,7 @@ import {
   Mail, 
   MessageCircle,
   FileCheck,
-  Check
+  Wallet
 } from "lucide-react";
 import { useOrder } from "@/components/OrderContext";
 
@@ -58,7 +59,7 @@ export default function CheckoutPage() {
     notes: "",
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "crypto" | "bank" | "direct">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"bank" | "revolut" | "crypto">("bank");
   const [couponInput, setCouponInput] = useState("");
   const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,7 +89,7 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  const isCreditCard = paymentMethod === "card";
+  const isRevolut = paymentMethod === "revolut";
   const isCrypto = paymentMethod === "crypto";
   const isBank = paymentMethod === "bank";
 
@@ -98,7 +99,6 @@ export default function CheckoutPage() {
 
   const shippingFee = appliedCoupon?.freeShipping ? 0 : 9.99;
   const finalPrice = subtotalAfterCrypto + shippingFee;
-  const isCardAboveMax = isCreditCard && finalPrice > 350;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -145,10 +145,7 @@ export default function CheckoutPage() {
       setErrorMessage("Please confirm that these products are purchased strictly for laboratory research.");
       return false;
     }
-    if (isCardAboveMax) {
-      setErrorMessage("Card payments are capped at £350 per transaction. Please choose Crypto (10% OFF) or Bank Transfer for larger orders.");
-      return false;
-    }
+
     return true;
   };
 
@@ -162,9 +159,9 @@ export default function CheckoutPage() {
     const orderRef = `RETA-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Date.now().toString().slice(-4)}`;
 
     const paymentLabel = 
-      isCreditCard ? "Credit / Debit Card (Bachs Gateway)" :
+      isRevolut ? "Revolut Transfer" :
       isCrypto ? "Cryptocurrency (USDT / BTC) - 10% Discount" :
-      isBank ? "UK Bank Transfer (BACS)" :
+      isBank ? "Bank Transfer" :
       "Direct Research Inquiry";
 
     // 1. Snapshot payload for localStorage & email
@@ -223,56 +220,11 @@ export default function CheckoutPage() {
     }
 
     // 3. Process according to payment route
-    if (isCreditCard) {
-      try {
-        const payload = {
-          customer: {
-            name: formData.name.trim(),
-            email: formData.email.trim(),
-            phone: formData.phone.trim() || undefined,
-          },
-          shipping: {
-            region: formData.shippingRegion,
-            address: fullAddress,
-          },
-          pricing: {
-            totalGBP: finalPrice.toFixed(2),
-            subtotalGBP: subtotalAfterCrypto.toFixed(2),
-            shippingGBP: shippingFee.toFixed(2),
-          },
-          items: items.map((i) => ({
-            name: i.name,
-            variant: i.variant,
-            qty: i.qty,
-            price: i.price,
-          })),
-          appUrl: typeof window !== "undefined" ? window.location.origin : undefined,
-        };
-
-        const res = await fetch("/api/checkout/bachs", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await res.json();
-        if (!res.ok || !data.checkout_url) {
-          throw new Error(data.error || "Card checkout failed to initialize. Please try again or choose Crypto.");
-        }
-
-        // Redirect to Bachs secure gateway
-        window.location.href = data.checkout_url;
-      } catch (err: any) {
-        setIsSubmitting(false);
-        setErrorMessage(err.message || "Unable to connect to card processor. Please try again.");
-      }
-    } else {
-      // Non-card order: order email already sent to admin & customer!
-      // Clear current cart and redirect to success page with method parameter
-      clearOrder();
-      const methodParam = isCrypto ? "crypto" : isBank ? "bank" : "direct";
-      router.push(`/checkout/success?ref=${orderRef}&method=${methodParam}`);
-    }
+    // Non-card order: order email already sent to admin & customer!
+    // Clear current cart and redirect to success page with method parameter
+    clearOrder();
+    const methodParam = isRevolut ? "revolut" : isCrypto ? "crypto" : "bank";
+    router.push(`/checkout/success?ref=${orderRef}&method=${methodParam}`);
   };
 
   // Empty Cart Screen
@@ -535,11 +487,11 @@ export default function CheckoutPage() {
 
               <div className="space-y-3">
                 
-                {/* Method 1: Credit / Debit Card */}
+                {/* Method 1: Revolut */}
                 <label
-                  onClick={() => setPaymentMethod("card")}
+                  onClick={() => setPaymentMethod("revolut")}
                   className={`flex items-start gap-3.5 p-4 rounded-xl border cursor-pointer transition-all ${
-                    isCreditCard
+                    isRevolut
                       ? "bg-[#1E293B] border-[#3B82F6] ring-1 ring-[#3B82F6]"
                       : "bg-[#0B1120] border-[#1E293B] hover:border-[#334155]"
                   }`}
@@ -547,30 +499,23 @@ export default function CheckoutPage() {
                   <input
                     type="radio"
                     name="paymentMethodRadio"
-                    checked={isCreditCard}
-                    onChange={() => setPaymentMethod("card")}
+                    checked={isRevolut}
+                    onChange={() => setPaymentMethod("revolut")}
                     className="mt-1 text-[#3B82F6] focus:ring-[#3B82F6]"
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <CreditCard size={18} className="text-[#3B82F6]" />
-                        <span className="text-sm font-bold text-white">Credit / Debit Card</span>
+                        <Wallet size={18} className="text-[#3B82F6]" />
+                        <span className="text-sm font-bold text-white">Revolut Transfer</span>
                       </div>
                       <span className="text-[10px] bg-[#10B981]/20 text-[#10B981] px-2 py-0.5 rounded font-mono font-bold">
-                        256-BIT SSL
+                        FAST
                       </span>
                     </div>
                     <p className="text-xs text-[#94A3B8] mt-1">
-                      Instant checkout via Bachs Hosted Payment Gateway. Supports Visa, Mastercard, and Apple Pay.
+                      Pay instantly with your Revolut account. Transfer details will be provided at checkout completion.
                     </p>
-
-                    {isCardAboveMax && (
-                      <div className="mt-2 bg-amber-500/15 border border-amber-500/40 rounded-lg p-2 text-xs text-amber-300 flex items-start gap-1.5">
-                        <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                        <span>Card transaction ceiling is £350. Please select Crypto or Bank Transfer.</span>
-                      </div>
-                    )}
                   </div>
                 </label>
 
@@ -611,7 +556,7 @@ export default function CheckoutPage() {
                   </div>
                 </label>
 
-                {/* Method 3: UK Bank Transfer (BACS) */}
+                {/* Method 3: Bank Transfer */}
                 <label
                   onClick={() => setPaymentMethod("bank")}
                   className={`flex items-start gap-3.5 p-4 rounded-xl border cursor-pointer transition-all ${
@@ -631,7 +576,7 @@ export default function CheckoutPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Building2 size={18} className="text-[#93C5FD]" />
-                        <span className="text-sm font-bold text-white">UK Bank Transfer (BACS / Faster Payments)</span>
+                        <span className="text-sm font-bold text-white">Bank Transfer</span>
                       </div>
                       <span className="text-[10px] text-[#94A3B8] border border-[#334155] px-1.5 py-0.5 rounded">
                         UK Accounts
@@ -639,38 +584,6 @@ export default function CheckoutPage() {
                     </div>
                     <p className="text-xs text-[#94A3B8] mt-1">
                       Direct invoice with bank sort code & account number sent directly to your email address.
-                    </p>
-                  </div>
-                </label>
-
-                {/* Method 4: Direct Inquiry / WhatsApp */}
-                <label
-                  onClick={() => setPaymentMethod("direct")}
-                  className={`flex items-start gap-3.5 p-4 rounded-xl border cursor-pointer transition-all ${
-                    paymentMethod === "direct"
-                      ? "bg-[#1E293B] border-[#FF6B1A] ring-1 ring-[#FF6B1A]"
-                      : "bg-[#0B1120] border-[#1E293B] hover:border-[#334155]"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethodRadio"
-                    checked={paymentMethod === "direct"}
-                    onChange={() => setPaymentMethod("direct")}
-                    className="mt-1 text-[#FF6B1A] focus:ring-[#FF6B1A]"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MessageCircle size={18} className="text-[#FF6B1A]" />
-                        <span className="text-sm font-bold text-white">Direct Institutional PO / WhatsApp Order</span>
-                      </div>
-                      <span className="text-[10px] text-[#FF6B1A] border border-[#FF6B1A]/40 px-1.5 py-0.5 rounded">
-                        Support Concierge
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#94A3B8] mt-1">
-                      Submit order directly to laboratory support team for purchase orders or customized inquiries.
                     </p>
                   </div>
                 </label>
@@ -705,7 +618,7 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={handlePlaceOrder}
-                disabled={isSubmitting || isCardAboveMax}
+                disabled={isSubmitting}
                 className="w-full bg-[#10B981] hover:bg-[#059669] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2.5 transition-all text-base shadow-[0_0_25px_rgba(16,185,129,0.3)] disabled:opacity-50 disabled:cursor-not-allowed font-heading cursor-pointer"
               >
                 {isSubmitting ? (
@@ -717,9 +630,7 @@ export default function CheckoutPage() {
                   <>
                     <CheckCircle2 size={20} />
                     <span>
-                      {isCreditCard
-                        ? `Proceed to Card Payment • £${finalPrice.toFixed(2)}`
-                        : isCrypto
+                      {isRevolut ? `Complete Order with Revolut • £${finalPrice.toFixed(2)}` : isCrypto
                         ? `Confirm & Place Order (10% OFF) • £${finalPrice.toFixed(2)}`
                         : `Place Order & Receive Invoice • £${finalPrice.toFixed(2)}`}
                     </span>

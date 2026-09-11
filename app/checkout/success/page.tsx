@@ -149,7 +149,10 @@ function SuccessContent() {
   let headerText = "Thank You for Your Order";
   let subText = `Your payment was successfully processed via Bachs Secure Gateway. A receipt has been issued to <strong class="text-white">${customerEmail || "your email"}</strong>.`;
   
-  if (methodParam === "crypto") {
+  if (methodParam === "revolut") {
+    headerText = "Order Received & Invoice Sent";
+    subText = `Your order has been recorded. Our Revolut payment instructions have been sent to <strong class="text-white">${customerEmail || "your email"}</strong>. Your order will dispatch immediately after funds clear.`;
+  } else if (methodParam === "crypto") {
     headerText = "Order Placed Successfully";
     subText = `Your cryptocurrency order has been logged. Wallet transfer instructions have been sent to <strong class="text-white">${customerEmail || "your email"}</strong>. Your order will dispatch as soon as the transfer is verified on the blockchain.`;
   } else if (methodParam === "bank") {
