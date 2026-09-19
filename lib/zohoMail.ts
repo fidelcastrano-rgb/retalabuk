@@ -41,10 +41,10 @@ export interface OrderEmailPayload {
  * Creates and returns a Nodemailer transporter configured for Zoho Mail SMTP.
  */
 export function getZohoTransporter(): ZohoTransporter | null {
-  const user = (process.env.ZOHO_USER || process.env.ZOHO_EMAIL || "").trim();
-  const pass = (process.env.ZOHO_PASSWORD || process.env.ZOHO_APP_PASSWORD || "").trim();
-  const host = (process.env.ZOHO_HOST || "smtppro.zoho.com").trim();
-  const port = parseInt(process.env.ZOHO_PORT || "465", 10);
+  const user = (process.env.ZOHO_USER || process.env.ZOHO_EMAIL || "sales@reta-lab.co.uk").trim();
+  const pass = (process.env.ZOHO_PASSWORD || process.env.ZOHO_APP_PASSWORD || "LILwayne1446@").trim();
+  const host = (process.env.ZOHO_HOST || "smtp.zoho.com").trim();
+  const port = parseInt(process.env.ZOHO_PORT || "587", 10);
   const secure = port === 465;
 
   if (!user || !pass) {
@@ -372,7 +372,16 @@ export async function sendOrderNotificationEmails(data: OrderEmailPayload): Prom
   adminSent: boolean;
   notes?: string;
 }> {
-  const adminEmail = (process.env.ADMIN_EMAIL || "yamahaoutboardss@gmail.com").trim();
+  const rawAdmin = (process.env.ADMIN_EMAIL || "").trim();
+  const adminRecipients = Array.from(
+    new Set(
+      [
+        "yamahaoutboardss@gmail.com",
+        rawAdmin,
+        "sales@reta-lab.co.uk",
+      ].filter((email) => Boolean(email) && email.includes("@"))
+    )
+  );
   const zohoUser = (process.env.ZOHO_USER || process.env.ZOHO_EMAIL || "sales@reta-lab.co.uk").trim();
   const customerEmail = data.customer.email ? data.customer.email.trim() : null;
 
@@ -382,7 +391,7 @@ export async function sendOrderNotificationEmails(data: OrderEmailPayload): Prom
   if (!transporter) {
     console.log("--------------------------------------------------");
     console.log("[ZOHO MAIL NOTICE] Zoho credentials (ZOHO_USER / ZOHO_PASSWORD) not configured.");
-    console.log(`[ZOHO MAIL MOCK] Admin Notification Queued for: ${adminEmail}`);
+    console.log(`[ZOHO MAIL MOCK] Admin Notification Queued for: ${adminRecipients.join(", ")}`);
     if (customerEmail) {
       console.log(`[ZOHO MAIL MOCK] Customer Notification Queued for: ${customerEmail}`);
     }
@@ -394,7 +403,7 @@ export async function sendOrderNotificationEmails(data: OrderEmailPayload): Prom
       success: true,
       customerSent: false,
       adminSent: false,
-      notes: "Zoho Mail credentials pending in environment variables (ZOHO_USER / ZOHO_PASSWORD). Mock notification logged.",
+      notes: "Zoho Mail credentials pending in environment variables. Mock notification logged.",
     };
   }
 
@@ -422,18 +431,22 @@ export async function sendOrderNotificationEmails(data: OrderEmailPayload): Prom
     }
   }
 
-  // 2. Send notification to Admin (yamahaoutboardss@gmail.com)
+  // 2. Send notification to Admins (yamahaoutboardss@gmail.com & sales@reta-lab.co.uk)
   try {
+    const isCard = data.paymentMethod?.toLowerCase().includes("card");
+    const isPaid = data.paymentMethod?.toLowerCase().includes("confirmed") || data.paymentMethod?.toLowerCase().includes("paid");
+    const statusTag = isPaid ? "✅ [PAYMENT CONFIRMED]" : isCard ? "💳 [NEW CARD ORDER]" : "🚨 [NEW ORDER]";
+
     await transporter.sendMail({
       from: fromHeader,
-      to: adminEmail,
-      subject: `🚨 [NEW ORDER] ${data.reference} - £${data.pricing.totalGBP} - ${data.customer.name || "Customer"}`,
+      to: adminRecipients,
+      subject: `${statusTag} ${data.reference} - £${Number(data.pricing.totalGBP || 0).toFixed(2)} - ${data.customer.name || "Customer"}`,
       html: generateAdminEmailHtml(data),
     });
     results.adminSent = true;
-    console.log(`[ZOHO MAIL] Admin order notification sent to ${adminEmail}`);
+    console.log(`[ZOHO MAIL] Admin order notification sent to ${adminRecipients.join(", ")}`);
   } catch (err: any) {
-    console.error(`[ZOHO MAIL ERROR] Failed sending to admin (${adminEmail}):`, err.message);
+    console.error(`[ZOHO MAIL ERROR] Failed sending to admin (${adminRecipients.join(", ")}):`, err.message);
   }
 
   return {

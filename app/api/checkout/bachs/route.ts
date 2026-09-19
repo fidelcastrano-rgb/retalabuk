@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sendOrderNotificationEmails } from "@/lib/zohoMail";
 
 const BACHS_API_BASE = "https://api.bachs.io/v1";
 
@@ -16,17 +17,12 @@ function cleanApiKey(raw: string): string {
   return cleaned;
 }
 
+// User-specified live Bachs secret key
+const BACHS_ACTIVE_LIVE_KEY = "sk_live_5b5bb608_WDjMBFD5SnH1SHotFtqS4EatIWMR5J9zizgQUlM-LPM";
+
 function getBachsApiKey(): string {
-  const rawKey =
-    process.env.BACHS_SECRET_KEY ||
-    "sk_live_5b5bb608_WDjMBFD5SnH1SHotFtqS4EatIWMR5J9zizgQUlM-LPM";
-
-  const key = cleanApiKey(rawKey);
-
-  if (!key) {
-    throw new Error("BACHS_SECRET_KEY is not configured");
-  }
-  return key;
+  // Always use the explicitly requested sk_live key
+  return cleanApiKey(BACHS_ACTIVE_LIVE_KEY);
 }
 
 // Fixed conversion rate from GBP to USD (1 GBP = 1.30 USD)
@@ -79,10 +75,12 @@ export async function POST(req: NextRequest) {
     }
 
     const totalUSD = (totalGBP * GBP_TO_USD_RATE).toFixed(2);
-    const reference = `RETA-${Date.now().toString(36).toUpperCase()}-${Math.random()
-      .toString(36)
-      .substring(2, 6)
-      .toUpperCase()}`;
+    const reference =
+      (body.reference && typeof body.reference === "string" && body.reference.trim()) ||
+      `RETA-${Date.now().toString(36).toUpperCase()}-${Math.random()
+        .toString(36)
+        .substring(2, 6)
+        .toUpperCase()}`;
 
     // Create checkout session directly with Bachs payment gateway
     const sessionPayload: any = {
@@ -122,6 +120,40 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
 
     if (response.ok && data.checkout_url) {
+      // Dispatch real-time new order notification to Admin (yamahaoutboardss@gmail.com & sales@reta-lab.co.uk) & Customer
+      try {
+        await sendOrderNotificationEmails({
+          reference,
+          customer: {
+            name: customer.name.trim(),
+            email: customer.email.trim(),
+            phone: customer.phone ? customer.phone.trim() : undefined,
+            address: shipping?.address || "",
+          },
+          items: Array.isArray(items)
+            ? items.map((i: any) => ({
+                name: i.name,
+                variant: i.variant || "",
+                qty: Number(i.qty) || 1,
+                price: Number(i.price) || 0,
+              }))
+            : [],
+          pricing: {
+            totalGBP: totalGBP.toFixed(2),
+            totalUSD,
+            subtotalGBP: pricing?.subtotalGBP || totalGBP.toFixed(2),
+            discountGBP: pricing?.discountGBP || 0,
+            couponDiscountGBP: pricing?.couponDiscountGBP || 0,
+            shippingGBP: pricing?.shippingGBP || 0,
+          },
+          paymentMethod: "Credit / Debit Card (Bachs Gateway)",
+          shippingRegion: shipping?.region || "UK",
+          checkoutId: data.checkout_id,
+        });
+      } catch (mailErr: any) {
+        console.error("Error dispatching Zoho notification for card order:", mailErr);
+      }
+
       return NextResponse.json({
         success: true,
         gateway: "bachs",

@@ -171,7 +171,7 @@ export default function CheckoutPage() {
       "Direct Research Inquiry";
 
     // 1. Snapshot payload for localStorage & email
-    const orderSnapshot = {
+    const orderSnapshot: Record<string, any> = {
       reference: orderRef,
       customer: {
         name: formData.name.trim(),
@@ -211,6 +211,7 @@ export default function CheckoutPage() {
     if (isCreditCard) {
       try {
         const payload = {
+          reference: orderRef,
           customer: {
             name: formData.name.trim(),
             email: formData.email.trim(),
@@ -224,6 +225,8 @@ export default function CheckoutPage() {
             totalGBP: finalPrice.toFixed(2),
             subtotalGBP: subtotalAfterCrypto.toFixed(2),
             shippingGBP: shippingFee.toFixed(2),
+            discountGBP: discountAmount > 0 ? discountAmount.toFixed(2) : 0,
+            couponDiscountGBP: couponDiscountAmount > 0 ? couponDiscountAmount.toFixed(2) : 0,
           },
           items: items.map((i) => ({
             name: i.name,
@@ -246,6 +249,20 @@ export default function CheckoutPage() {
             data.error || "Card checkout failed to initialize. Please try again or choose Bank Transfer / Crypto."
           );
         }
+
+        const finalRef = data.reference || orderRef;
+        orderSnapshot.reference = finalRef;
+        if (data.checkout_id) {
+          orderSnapshot.checkout_id = data.checkout_id;
+        }
+        try {
+          localStorage.setItem("reta_last_order", JSON.stringify(orderSnapshot));
+          localStorage.setItem(`reta_email_sent_${finalRef}`, "true");
+        } catch (e) {
+          // ignore
+        }
+
+        clearOrder();
 
         // Redirect customer to Bachs 256-bit encrypted checkout session
         window.location.href = data.checkout_url;
