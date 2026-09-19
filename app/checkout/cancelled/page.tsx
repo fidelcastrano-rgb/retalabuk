@@ -38,7 +38,7 @@ export default function CheckoutCancelledPage() {
           </Link>
 
           <a
-            href="https://wa.me/447723217812"
+            href="https://wa.me/447727171512"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full bg-transparent border border-[#334155] hover:border-[#64748B] text-[#CBD5E1] hover:text-white py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors text-xs"

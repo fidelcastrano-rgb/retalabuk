@@ -66,7 +66,7 @@ export function ProductReviews({ reviews }: ProductReviewsProps) {
             </div>
             
             <p className="text-[#475569] leading-relaxed text-sm flex-grow">
-              "{review.text}"
+              &ldquo;{review.text}&rdquo;
             </p>
           </div>
         ))}

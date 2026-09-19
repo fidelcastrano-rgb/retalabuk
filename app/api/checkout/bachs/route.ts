@@ -6,8 +6,8 @@ function cleanApiKey(raw: string): string {
   let cleaned = (raw || "").trim();
   // Remove wrapping quotes
   cleaned = cleaned.replace(/^["']+|["']+$/g, "").trim();
-  // Extract key matching sk_live_... or sk_test_... if prefixed with words
-  const match = cleaned.match(/(sk_(?:live|test)_[A-Za-z0-9_]+)/);
+  // Extract key matching sk_live_... or sk_test_... if prefixed with words (supports hyphens and underscores)
+  const match = cleaned.match(/(sk_(?:live|test)_[A-Za-z0-9_-]+)/);
   if (match) {
     return match[1];
   }
@@ -19,7 +19,7 @@ function cleanApiKey(raw: string): string {
 function getBachsApiKey(): string {
   const rawKey =
     process.env.BACHS_SECRET_KEY ||
-    "sk_live_c58e2ddb_ixgLAIRNj5sv0dXGH0ha9QnTc_qdKJtki7jKUsORrJs";
+    "sk_live_5b5bb608_WDjMBFD5SnH1SHotFtqS4EatIWMR5J9zizgQUlM-LPM";
 
   const key = cleanApiKey(rawKey);
 

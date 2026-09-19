@@ -204,10 +204,11 @@ function SuccessContent() {
             <span className="text-[#94A3B8]">Payment Method:</span>
             <span className="flex items-center gap-1.5 font-medium text-white">
               <ShieldCheck size={16} className="text-[#10B981]" />
-              {methodParam === "crypto" ? "Cryptocurrency (Pending)" : 
+              {methodParam === "revolut" ? "Revolut Transfer (Pending)" :
+               methodParam === "crypto" ? "Cryptocurrency (Pending)" : 
                methodParam === "bank" ? "Bank Transfer (Pending)" : 
                methodParam === "direct" ? "Direct Inquiry" : 
-               "Confirmed Card Order"}
+               "Confirmed Card Order (Bachs Gateway)"}
             </span>
           </div>
 
