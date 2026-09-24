@@ -1397,7 +1397,7 @@ export const products: Product[] = rawProducts.map((product) => ({
 
 export const faqs: FAQ[] = [
   { question: "What are your shipping fees?", answer: "Shipping is a flat rate of £9.99 for all destinations (including the UK, Europe, Australia, and Ireland).", category: "Delivery" },
-  { question: "What payment methods do you accept?", answer: "We accept Credit / Debit Cards (Visa, Mastercard, Apple Pay, Google Pay via our secure 256-bit encrypted gateway for orders up to £350), Crypto (Bitcoin, USDT, Ethereum) with an automatic 10% discount on every order, Bank Transfer (UK BACS), and Skrill. Crypto is the preferred option for customers seeking maximum anonymity.", category: "Buying & Ordering" },
+  { question: "What payment methods do you accept?", answer: "We accept Revolut (instant transfer via Revolut app or @Revtag with zero fees), Bank Transfer (direct UK BACS invoice sent upon order confirmation), and Cryptocurrency (USDT, Bitcoin, Ethereum) with an automatic 10% discount on every order. Revolut and Crypto are the fastest payment methods for immediate automated matching and same-day priority dispatch.", category: "Buying & Ordering" },
   { question: "How do I place a bulk order?", answer: "Use our Order Builder by adding products and clicking 'Order via WhatsApp'. We will process your invoice there.", category: "Buying & Ordering" },
   { question: "Do you ship internationally?", answer: "We focus on UK, Europe, and Australia. Please inquire via contact page for other regions.", category: "Delivery" },
   { question: "Are your COAs independent?", answer: "Yes, we use 3rd-party HPLC testing from unbiased laboratories to verify >99% purity.", category: "Quality" },

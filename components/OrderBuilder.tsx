@@ -11,7 +11,6 @@ import {
   ChevronUp, 
   Tag, 
   Sparkles, 
-  CreditCard, 
   ShieldCheck, 
   ArrowRight,
   ShoppingBag

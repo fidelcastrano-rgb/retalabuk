@@ -41,10 +41,10 @@ export interface OrderEmailPayload {
  * Creates and returns a Nodemailer transporter configured for Zoho Mail SMTP.
  */
 export function getZohoTransporter(): ZohoTransporter | null {
-  const user = (process.env.ZOHO_USER || process.env.ZOHO_EMAIL || "sales@reta-lab.co.uk").trim();
-  const pass = (process.env.ZOHO_PASSWORD || process.env.ZOHO_APP_PASSWORD || "LILwayne1446@").trim();
-  const host = (process.env.ZOHO_HOST || "smtp.zoho.com").trim();
-  const port = parseInt(process.env.ZOHO_PORT || "587", 10);
+  const user = (process.env.ZOHO_USER || process.env.ZOHO_EMAIL || "").trim();
+  const pass = (process.env.ZOHO_PASSWORD || process.env.ZOHO_APP_PASSWORD || "").trim();
+  const host = (process.env.ZOHO_HOST || "smtppro.zoho.com").trim();
+  const port = parseInt(process.env.ZOHO_PORT || "465", 10);
   const secure = port === 465;
 
   if (!user || !pass) {
@@ -130,7 +130,7 @@ export function generateCustomerEmailHtml(data: OrderEmailPayload): string {
             </tr>
             <tr>
               <td style="padding: 4px 0; color: #64748b;">Payment Method:</td>
-              <td style="padding: 4px 0; text-align: right; font-weight: 600; color: #0f172a;">${data.paymentMethod || "Credit / Debit Card"}</td>
+              <td style="padding: 4px 0; text-align: right; font-weight: 600; color: #0f172a;">${data.paymentMethod || "Revolut / Bank Transfer"}</td>
             </tr>
             <tr>
               <td style="padding: 4px 0; color: #64748b;">Total Amount:</td>
@@ -143,6 +143,46 @@ export function generateCustomerEmailHtml(data: OrderEmailPayload): string {
             </tr>` : ""}
           </table>
         </div>
+
+        ${data.paymentMethod && data.paymentMethod.toLowerCase().includes("revolut") ? `
+        <!-- Revolut Transfer Instructions -->
+        <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid #0284c7; padding: 14px 16px; border-radius: 8px; margin-bottom: 24px;">
+          <h4 style="margin: 0 0 6px 0; font-size: 13px; text-transform: uppercase; color: #0369a1; letter-spacing: 0.5px;">⚡ Revolut Payment Instructions</h4>
+          <p style="margin: 0 0 8px 0; font-size: 13px; color: #0c4a6e; line-height: 1.5;">
+            To complete your order, open your Revolut app and transfer <strong>£${totalGBP}</strong>.
+          </p>
+          <div style="background-color: #ffffff; border: 1px solid #e0f2fe; border-radius: 6px; padding: 8px 12px; font-size: 12px; margin-bottom: 8px;">
+            <span style="color: #64748b;">Payment Note / Reference: </span>
+            <strong style="color: #0f172a; font-family: monospace; font-size: 13px;">${data.reference}</strong>
+          </div>
+          <p style="margin: 0; font-size: 12px; color: #0284c7;">
+            Please quote your reference in the transfer note. Need our direct Revtag or Revolut IBAN? Reply directly to this email or message WhatsApp at <strong>+447727171512</strong>.
+          </p>
+        </div>` : ""}
+
+        ${data.paymentMethod && data.paymentMethod.toLowerCase().includes("bank") ? `
+        <!-- Bank Transfer Instructions -->
+        <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #3b82f6; padding: 14px 16px; border-radius: 8px; margin-bottom: 24px;">
+          <h4 style="margin: 0 0 6px 0; font-size: 13px; text-transform: uppercase; color: #1e3a8a; letter-spacing: 0.5px;">🏦 UK Bank Transfer (BACS) Instructions</h4>
+          <p style="margin: 0 0 8px 0; font-size: 13px; color: #1e293b; line-height: 1.5;">
+            Please transfer <strong>£${totalGBP}</strong> using your Order Reference <strong style="font-family: monospace;">${data.reference}</strong> as the payment description.
+          </p>
+          <p style="margin: 0; font-size: 12px; color: #475569;">
+            Bank details and invoices are matched automatically. Reply to this email or send a transfer screenshot via WhatsApp (+447727171512) for immediate dispatch.
+          </p>
+        </div>` : ""}
+
+        ${data.paymentMethod && data.paymentMethod.toLowerCase().includes("crypto") ? `
+        <!-- Crypto Instructions -->
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #10b981; padding: 14px 16px; border-radius: 8px; margin-bottom: 24px;">
+          <h4 style="margin: 0 0 6px 0; font-size: 13px; text-transform: uppercase; color: #065f46; letter-spacing: 0.5px;">🪙 Cryptocurrency Transfer (10% Discount Applied)</h4>
+          <p style="margin: 0 0 8px 0; font-size: 13px; color: #14532d; line-height: 1.5;">
+            Total Due: <strong>£${totalGBP}</strong>. We support USDT (TRC-20 / ERC-20), Bitcoin (BTC), and Ethereum (ETH).
+          </p>
+          <p style="margin: 0; font-size: 12px; color: #15803d;">
+            Reply to this email or contact us on WhatsApp (+447727171512) with your preferred cryptocurrency to receive our dedicated receiving wallet address.
+          </p>
+        </div>` : ""}
 
         <!-- Ordered Items Table -->
         <h3 style="font-size: 14px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
@@ -270,7 +310,7 @@ export function generateAdminEmailHtml(data: OrderEmailPayload): string {
           </tr>
           <tr>
             <td style="padding: 10px 16px; color: #9ca3af; border-bottom: 1px solid #374151;">Payment Method:</td>
-            <td style="padding: 10px 16px; text-align: right; font-weight: 700; color: #ffffff; border-bottom: 1px solid #374151;">${data.paymentMethod || "Credit / Debit Card"}</td>
+            <td style="padding: 10px 16px; text-align: right; font-weight: 700; color: #ffffff; border-bottom: 1px solid #374151;">${data.paymentMethod || "Revolut / Bank Transfer"}</td>
           </tr>
           <tr>
             <td style="padding: 10px 16px; color: #9ca3af; border-bottom: 1px solid #374151;">Total Amount (GBP):</td>
@@ -372,16 +412,7 @@ export async function sendOrderNotificationEmails(data: OrderEmailPayload): Prom
   adminSent: boolean;
   notes?: string;
 }> {
-  const rawAdmin = (process.env.ADMIN_EMAIL || "").trim();
-  const adminRecipients = Array.from(
-    new Set(
-      [
-        "yamahaoutboardss@gmail.com",
-        rawAdmin,
-        "sales@reta-lab.co.uk",
-      ].filter((email) => Boolean(email) && email.includes("@"))
-    )
-  );
+  const adminEmail = (process.env.ADMIN_EMAIL || "yamahaoutboardss@gmail.com").trim();
   const zohoUser = (process.env.ZOHO_USER || process.env.ZOHO_EMAIL || "sales@reta-lab.co.uk").trim();
   const customerEmail = data.customer.email ? data.customer.email.trim() : null;
 
@@ -391,7 +422,7 @@ export async function sendOrderNotificationEmails(data: OrderEmailPayload): Prom
   if (!transporter) {
     console.log("--------------------------------------------------");
     console.log("[ZOHO MAIL NOTICE] Zoho credentials (ZOHO_USER / ZOHO_PASSWORD) not configured.");
-    console.log(`[ZOHO MAIL MOCK] Admin Notification Queued for: ${adminRecipients.join(", ")}`);
+    console.log(`[ZOHO MAIL MOCK] Admin Notification Queued for: ${adminEmail}`);
     if (customerEmail) {
       console.log(`[ZOHO MAIL MOCK] Customer Notification Queued for: ${customerEmail}`);
     }
@@ -403,7 +434,7 @@ export async function sendOrderNotificationEmails(data: OrderEmailPayload): Prom
       success: true,
       customerSent: false,
       adminSent: false,
-      notes: "Zoho Mail credentials pending in environment variables. Mock notification logged.",
+      notes: "Zoho Mail credentials pending in environment variables (ZOHO_USER / ZOHO_PASSWORD). Mock notification logged.",
     };
   }
 
@@ -431,22 +462,18 @@ export async function sendOrderNotificationEmails(data: OrderEmailPayload): Prom
     }
   }
 
-  // 2. Send notification to Admins (yamahaoutboardss@gmail.com & sales@reta-lab.co.uk)
+  // 2. Send notification to Admin (yamahaoutboardss@gmail.com)
   try {
-    const isCard = data.paymentMethod?.toLowerCase().includes("card");
-    const isPaid = data.paymentMethod?.toLowerCase().includes("confirmed") || data.paymentMethod?.toLowerCase().includes("paid");
-    const statusTag = isPaid ? "✅ [PAYMENT CONFIRMED]" : isCard ? "💳 [NEW CARD ORDER]" : "🚨 [NEW ORDER]";
-
     await transporter.sendMail({
       from: fromHeader,
-      to: adminRecipients,
-      subject: `${statusTag} ${data.reference} - £${Number(data.pricing.totalGBP || 0).toFixed(2)} - ${data.customer.name || "Customer"}`,
+      to: adminEmail,
+      subject: `🚨 [NEW ORDER] ${data.reference} - £${data.pricing.totalGBP} - ${data.customer.name || "Customer"}`,
       html: generateAdminEmailHtml(data),
     });
     results.adminSent = true;
-    console.log(`[ZOHO MAIL] Admin order notification sent to ${adminRecipients.join(", ")}`);
+    console.log(`[ZOHO MAIL] Admin order notification sent to ${adminEmail}`);
   } catch (err: any) {
-    console.error(`[ZOHO MAIL ERROR] Failed sending to admin (${adminRecipients.join(", ")}):`, err.message);
+    console.error(`[ZOHO MAIL ERROR] Failed sending to admin (${adminEmail}):`, err.message);
   }
 
   return {

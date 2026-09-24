@@ -8,10 +8,10 @@ import {
   ArrowLeft, 
   ShieldCheck, 
   Lock, 
-  CreditCard, 
   Coins, 
   Building2, 
   Truck, 
+  Zap,
   Check,
   CheckCircle2, 
   AlertCircle, 
@@ -81,14 +81,14 @@ export default function CheckoutPage() {
     return initial;
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "bank" | "crypto">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"revolut" | "bank" | "crypto">("revolut");
   const [couponInput, setCouponInput] = useState("");
   const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(true);
 
-  const isCreditCard = paymentMethod === "card";
+  const isRevolut = paymentMethod === "revolut";
   const isCrypto = paymentMethod === "crypto";
   const isBank = paymentMethod === "bank";
 
@@ -98,9 +98,6 @@ export default function CheckoutPage() {
 
   const shippingFee = appliedCoupon?.freeShipping ? 0 : 9.99;
   const finalPrice = subtotalAfterCrypto + shippingFee;
-
-  // Card limit: £350 maximum per transaction via Bachs gateway
-  const isCardAboveMax = isCreditCard && finalPrice > 350;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -143,10 +140,6 @@ export default function CheckoutPage() {
       setErrorMessage("Please enter your postcode or postal code.");
       return false;
     }
-    if (isCardAboveMax) {
-      setErrorMessage("Credit card payments are limited to £350 maximum per order. Please choose Bank Transfer or Cryptocurrency (10% OFF) for larger orders.");
-      return false;
-    }
     if (!acceptedTerms) {
       setErrorMessage("Please confirm that these products are purchased strictly for laboratory research.");
       return false;
@@ -165,13 +158,12 @@ export default function CheckoutPage() {
     const orderRef = `RETA-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Date.now().toString().slice(-4)}`;
 
     const paymentLabel = 
-      isCreditCard ? "Credit / Debit Card (Bachs Gateway)" :
+      isRevolut ? "Revolut (Instant Transfer / App)" :
       isCrypto ? "Cryptocurrency (USDT / BTC) - 10% Discount" :
-      isBank ? "Bank Transfer" :
-      "Direct Research Inquiry";
+      "Bank Transfer (UK BACS)";
 
     // 1. Snapshot payload for localStorage & email
-    const orderSnapshot: Record<string, any> = {
+    const orderSnapshot = {
       reference: orderRef,
       customer: {
         name: formData.name.trim(),
@@ -207,94 +199,28 @@ export default function CheckoutPage() {
       console.warn("Could not save order snapshot to localStorage", e);
     }
 
-    // 2. Process based on payment method:
-    if (isCreditCard) {
-      try {
-        const payload = {
+    // 2. Dispatch Zoho Mail notification to both customer and admin
+    try {
+      await fetch("/api/checkout/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           reference: orderRef,
-          customer: {
-            name: formData.name.trim(),
-            email: formData.email.trim(),
-            phone: formData.phone.trim() || undefined,
-          },
-          shipping: {
-            region: formData.shippingRegion,
-            address: fullAddress,
-          },
-          pricing: {
-            totalGBP: finalPrice.toFixed(2),
-            subtotalGBP: subtotalAfterCrypto.toFixed(2),
-            shippingGBP: shippingFee.toFixed(2),
-            discountGBP: discountAmount > 0 ? discountAmount.toFixed(2) : 0,
-            couponDiscountGBP: couponDiscountAmount > 0 ? couponDiscountAmount.toFixed(2) : 0,
-          },
-          items: items.map((i) => ({
-            name: i.name,
-            variant: i.variant,
-            qty: i.qty,
-            price: i.price,
-          })),
-          appUrl: typeof window !== "undefined" ? window.location.origin : undefined,
-        };
-
-        const res = await fetch("/api/checkout/bachs", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await res.json();
-        if (!res.ok || !data.checkout_url) {
-          throw new Error(
-            data.error || "Card checkout failed to initialize. Please try again or choose Bank Transfer / Crypto."
-          );
-        }
-
-        const finalRef = data.reference || orderRef;
-        orderSnapshot.reference = finalRef;
-        if (data.checkout_id) {
-          orderSnapshot.checkout_id = data.checkout_id;
-        }
-        try {
-          localStorage.setItem("reta_last_order", JSON.stringify(orderSnapshot));
-          localStorage.setItem(`reta_email_sent_${finalRef}`, "true");
-        } catch (e) {
-          // ignore
-        }
-
-        clearOrder();
-
-        // Redirect customer to Bachs 256-bit encrypted checkout session
-        window.location.href = data.checkout_url;
-      } catch (err: any) {
-        setIsSubmitting(false);
-        setErrorMessage(err.message || "Unable to connect to card processor. Please try again.");
-      }
-    } else {
-      // For non-card orders (Bank Transfer, Crypto):
-      // Dispatch Zoho Mail notification to both customer and admin
-      try {
-        await fetch("/api/checkout/email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            reference: orderRef,
-            customer: orderSnapshot.customer,
-            items: orderSnapshot.items,
-            pricing: orderSnapshot.pricing,
-            paymentMethod: paymentLabel,
-            shipping: formData.shippingRegion,
-          }),
-        });
-      } catch (emailErr) {
-        console.error("Order notification dispatch error:", emailErr);
-      }
-
-      // Clear current cart and redirect to success page with method parameter
-      clearOrder();
-      const methodParam = isCrypto ? "crypto" : "bank";
-      router.push(`/checkout/success?ref=${orderRef}&method=${methodParam}`);
+          customer: orderSnapshot.customer,
+          items: orderSnapshot.items,
+          pricing: orderSnapshot.pricing,
+          paymentMethod: paymentLabel,
+          shipping: formData.shippingRegion,
+        }),
+      });
+    } catch (emailErr) {
+      console.error("Order notification dispatch error:", emailErr);
     }
+
+    // Clear current cart and redirect to success page with method parameter
+    clearOrder();
+    const methodParam = isCrypto ? "crypto" : isRevolut ? "revolut" : "bank";
+    router.push(`/checkout/success?ref=${orderRef}&method=${methodParam}`);
   };
 
   // Empty Cart Screen
@@ -557,39 +483,41 @@ export default function CheckoutPage() {
 
               <div className="space-y-3">
                 
-                {/* Method 1: Credit / Debit Card */}
+                {/* Method 1: Revolut */}
                 <label
-                  onClick={() => setPaymentMethod("card")}
+                  onClick={() => setPaymentMethod("revolut")}
                   className={`flex items-start gap-3.5 p-4 rounded-xl border cursor-pointer transition-all ${
-                    isCreditCard
-                      ? "bg-[#1E293B] border-[#3B82F6] ring-1 ring-[#3B82F6]"
+                    isRevolut
+                      ? "bg-[#1E293B] border-[#0284C7] ring-1 ring-[#0284C7]"
                       : "bg-[#0B1120] border-[#1E293B] hover:border-[#334155]"
                   }`}
                 >
                   <input
                     type="radio"
                     name="paymentMethodRadio"
-                    checked={isCreditCard}
-                    onChange={() => setPaymentMethod("card")}
-                    className="mt-1 text-[#3B82F6] focus:ring-[#3B82F6]"
+                    checked={isRevolut}
+                    onChange={() => setPaymentMethod("revolut")}
+                    className="mt-1 text-[#0284C7] focus:ring-[#0284C7]"
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <CreditCard size={18} className="text-[#3B82F6]" />
-                        <span className="text-sm font-bold text-white">Credit / Debit Card</span>
+                        <div className="w-5 h-5 rounded-md bg-[#0284C7]/20 border border-[#0284C7]/40 flex items-center justify-center text-[#38BDF8]">
+                          <Zap size={13} className="fill-[#38BDF8]" />
+                        </div>
+                        <span className="text-sm font-bold text-white">Revolut</span>
                       </div>
-                      <span className="text-[10px] bg-[#3B82F6]/20 text-[#60A5FA] px-2 py-0.5 rounded font-mono font-bold">
-                        INSTANT
+                      <span className="text-[10px] bg-[#0284C7]/20 text-[#38BDF8] border border-[#0284C7]/30 px-2 py-0.5 rounded font-mono font-bold">
+                        INSTANT • ZERO FEES
                       </span>
                     </div>
                     <p className="text-xs text-[#94A3B8] mt-1">
-                      Pay securely with Visa, Mastercard, or Apple Pay via 256-bit encrypted checkout. (Max £350 per transaction).
+                      Pay instantly via Revolut app or @Revtag / account transfer. Instant matching with same-day priority dispatch.
                     </p>
-                    {isCardAboveMax && (
-                      <div className="mt-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2.5 flex items-center gap-2">
-                        <AlertCircle size={15} className="shrink-0 text-amber-400" />
-                        <span>Order total (£{finalPrice.toFixed(2)}) exceeds the £350 card limit. Please select Bank Transfer or Cryptocurrency (10% OFF).</span>
+                    {isRevolut && (
+                      <div className="mt-2 text-xs text-[#38BDF8] bg-[#0284C7]/10 border border-[#0284C7]/20 rounded-lg p-2.5 flex items-center gap-2">
+                        <Zap size={14} className="shrink-0 text-[#38BDF8]" />
+                        <span>Revolut transfer instructions and order reference will be generated upon confirmation.</span>
                       </div>
                     )}
                   </div>
@@ -617,8 +545,8 @@ export default function CheckoutPage() {
                         <Building2 size={18} className="text-[#93C5FD]" />
                         <span className="text-sm font-bold text-white">Bank Transfer</span>
                       </div>
-                      <span className="text-[10px] text-[#94A3B8] border border-[#334155] px-1.5 py-0.5 rounded">
-                        UK Accounts
+                      <span className="text-[10px] text-[#94A3B8] border border-[#334155] px-1.5 py-0.5 rounded font-mono">
+                        UK BACS
                       </span>
                     </div>
                     <p className="text-xs text-[#94A3B8] mt-1">
@@ -694,22 +622,22 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={handlePlaceOrder}
-                disabled={isSubmitting || isCardAboveMax}
+                disabled={isSubmitting}
                 className="w-full bg-[#10B981] hover:bg-[#059669] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2.5 transition-all text-base shadow-[0_0_25px_rgba(16,185,129,0.3)] disabled:opacity-50 disabled:cursor-not-allowed font-heading cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 size={20} className="animate-spin" />
-                    <span>{isCreditCard ? "Connecting to Secure Card Gateway..." : "Transmitting Order & Dispatching Notifications..."}</span>
+                    <span>Transmitting Order & Dispatching Notifications...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 size={20} />
                     <span>
-                      {isCreditCard
-                        ? `Proceed to Card Payment • £${finalPrice.toFixed(2)}`
-                        : isCrypto
+                      {isCrypto
                         ? `Confirm & Place Order (10% OFF) • £${finalPrice.toFixed(2)}`
+                        : isRevolut
+                        ? `Place Order via Revolut • £${finalPrice.toFixed(2)}`
                         : `Place Order & Receive Invoice • £${finalPrice.toFixed(2)}`}
                     </span>
                   </>

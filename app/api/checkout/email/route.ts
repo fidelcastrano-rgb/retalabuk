@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     const paymentMethod =
       directPaymentMethod ||
       localOrder?.customer?.payment ||
-      (session ? "Credit / Debit Card (Bachs Gateway)" : "Online Order");
+      "Online Order";
 
     const shippingRegion =
       directShipping ||

@@ -12,7 +12,10 @@ import {
   Clock, 
   Loader2, 
   Mail,
-  ExternalLink
+  ExternalLink,
+  Zap,
+  Building2,
+  Coins
 } from "lucide-react";
 import { useOrder } from "@/components/OrderContext";
 
@@ -147,7 +150,7 @@ function SuccessContent() {
 
   // Determine messaging based on method
   let headerText = "Thank You for Your Order";
-  let subText = `Your payment was successfully processed via Bachs Secure Gateway. A receipt has been issued to <strong class="text-white">${customerEmail || "your email"}</strong>.`;
+  let subText = `Your order has been recorded. Payment instructions have been sent to <strong class="text-white">${customerEmail || "your email"}</strong>.`;
   
   if (methodParam === "revolut") {
     headerText = "Order Received & Invoice Sent";
@@ -175,7 +178,7 @@ function SuccessContent() {
             <CheckCircle2 size={36} />
           </div>
           <span className="text-xs uppercase tracking-widest text-[#10B981] font-bold">
-            {methodParam ? "Order Placed & Logged" : "Payment Verified & Approved"}
+            Order Placed & Logged
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold font-heading text-white mt-1">
             {headerText}
@@ -203,12 +206,22 @@ function SuccessContent() {
           <div className="flex items-center justify-between pb-3 border-b border-[#334155]">
             <span className="text-[#94A3B8]">Payment Method:</span>
             <span className="flex items-center gap-1.5 font-medium text-white">
-              <ShieldCheck size={16} className="text-[#10B981]" />
-              {methodParam === "revolut" ? "Revolut Transfer (Pending)" :
-               methodParam === "crypto" ? "Cryptocurrency (Pending)" : 
-               methodParam === "bank" ? "Bank Transfer (Pending)" : 
-               methodParam === "direct" ? "Direct Inquiry" : 
-               "Confirmed Card Order (Bachs Gateway)"}
+              {methodParam === "revolut" ? (
+                <>
+                  <Zap size={15} className="text-[#38BDF8] fill-[#38BDF8]" />
+                  <span>Revolut Transfer (Pending)</span>
+                </>
+              ) : methodParam === "crypto" ? (
+                <>
+                  <Coins size={15} className="text-[#10B981]" />
+                  <span>Cryptocurrency (Pending)</span>
+                </>
+              ) : (
+                <>
+                  <Building2 size={15} className="text-[#93C5FD]" />
+                  <span>Bank Transfer (Pending)</span>
+                </>
+              )}
             </span>
           </div>
 
@@ -216,7 +229,7 @@ function SuccessContent() {
             <span className="text-[#94A3B8]">Amount Due:</span>
             <div className="text-right">
               {displayGBP && (
-                <span className="font-bold text-[#10B981] text-lg">
+                <span className="font-bold text-[#10B981] text-lg font-mono">
                   £{displayGBP}
                 </span>
               )}
@@ -228,6 +241,43 @@ function SuccessContent() {
             </div>
           </div>
         </div>
+
+        {/* Revolut Payment Instructions Card */}
+        {methodParam === "revolut" && (
+          <div className="bg-[#0B1120] border border-[#0284C7]/40 rounded-xl p-4 sm:p-5 mb-6 shadow-lg shadow-[#0284C7]/10">
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center gap-2 text-[#38BDF8] font-bold text-xs uppercase tracking-wider">
+                <Zap size={16} className="fill-[#38BDF8]" /> Revolut Payment Details
+              </div>
+              <span className="text-[10px] bg-[#0284C7]/20 text-[#38BDF8] border border-[#0284C7]/30 px-2 py-0.5 rounded font-mono font-bold">
+                INSTANT MATCHING
+              </span>
+            </div>
+            <p className="text-xs text-[#CBD5E1] mb-3 leading-relaxed">
+              Open your Revolut app to transfer <strong className="text-white">£{displayGBP}</strong>. Include your Order Reference in the transfer note so your order is verified automatically:
+            </p>
+            <div className="bg-[#1E293B] rounded-lg p-3 text-xs space-y-2 border border-[#334155]/60 font-mono">
+              <div className="flex items-center justify-between">
+                <span className="text-[#94A3B8] font-sans">Payment Method:</span>
+                <span className="font-semibold text-[#38BDF8]">Revolut Transfer / Revtag</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#94A3B8] font-sans">Reference to Quote:</span>
+                <span className="font-mono font-bold text-[#FF6B1A] bg-[#0F172A] px-2.5 py-0.5 rounded border border-[#FF6B1A]/30">
+                  {orderReference}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#94A3B8] font-sans">Total Due:</span>
+                <span className="font-bold text-[#10B981] text-sm font-mono">£{displayGBP}</span>
+              </div>
+            </div>
+            <div className="mt-3 text-[11px] text-[#94A3B8] leading-relaxed flex items-start gap-1.5">
+              <CheckCircle2 size={14} className="text-[#10B981] shrink-0 mt-0.5" />
+              <span>Full Revolut payment details and instructions have also been sent to <strong className="text-white">{customerEmail || "your email"}</strong>. Orders dispatch same day upon payment verification.</span>
+            </div>
+          </div>
+        )}
 
         {/* Ordered Items Summary if available */}
         {localOrder?.items && localOrder.items.length > 0 && (
